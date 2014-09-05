@@ -138,8 +138,6 @@ angular.module('gteApp')
       _.forEach($scope.rowsForGTE, addWatchesForRow);
 
       $scope.exportAHK = function (rows) {
-        var link = document.createElement('a');
-        link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
         var autoHotKeyScript = 'WinActivate, Global Time & Expense: Timesheets: Timesheet Grid' +
             '\nWinWaitActive, Global Time & Expense: Timesheets: Timesheet Grid - Windows Internet Explorer provided by Ernst & Young, Address Combo Contro' +
             '\nSetKeyDelay 250' +
@@ -156,7 +154,15 @@ angular.module('gteApp')
           });
           autoHotKeyScript += '\nSleep 500\nSend, {TAB}{TAB}{TAB}{TAB}';
         });
+
+        var link = document.createElement('a');
+        link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
         link.href = 'data:application/octet-stream,' + encodeURIComponent(autoHotKeyScript);
-        link.click();
+        link.click(); 
+        var oWin = window.open("about:blank", "_blank");
+        oWin.document.write(autoHotKeyScript);
+        oWin.document.close();
+        var success = oWin.document.execCommand('SaveAs', true, 'gte wizard export on ' + (new Date()).toISOString().substring(0, 10) + ' - please drop on AutoHotkey');
+        oWin.close();
       };
     });
