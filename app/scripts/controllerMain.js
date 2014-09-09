@@ -31,6 +31,13 @@ angular.module('gteApp')
         });
         return totalDiff;
       };
+      $scope.getTotal = function (rows) {
+        var totalDiff = 0;
+        _.forEach(rows, function (row) {
+          totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+        });
+        return totalDiff;
+      };
       $scope.deleteAllRows = function (rows) {
         rows.splice(0, rows.length);
       };
@@ -158,7 +165,7 @@ angular.module('gteApp')
         var link = document.createElement('a');
         link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
         link.href = 'data:application/octet-stream,' + encodeURIComponent(autoHotKeyScript);
-        link.click(); 
+        link.click();
         var oWin = window.open("about:blank", "_blank");
         oWin.document.write(autoHotKeyScript);
         oWin.document.close();
