@@ -69,7 +69,7 @@ angular.module('gteApp')
       };
       $scope.roundRow = function (row) {
         var remainder = 0;
-        _.forEach(weekdaysForGTE, function(weekday) {
+        _.forEach(weekdaysForGTE, function (weekday) {
           var roundedValue = Math.floor((row[weekday] + remainder) * 10) / 10;
           remainder = row[weekday] + remainder - roundedValue;
           row[weekday] = roundedValue;
@@ -156,22 +156,31 @@ angular.module('gteApp')
       _.forEach($scope.rowsForGTE, addWatchesForRow);
 
       $scope.exportAHK = function (rows) {
-        var autoHotKeyScript = 'WinActivate, Global Time & Expense: Timesheets: Timesheet Grid' +
-            '\nWinWaitActive, Global Time & Expense: Timesheets: Timesheet Grid - Windows Internet Explorer provided by Ernst & Young, Address Combo Contro' +
-            '\nSetKeyDelay 250' +
-            '\nSend, {TAB}';
+        var autoHotKeyScript =
+            'SendToGTE(data) {\n' +
+            'For index, value in data  {\n' +
+            '        clipboard := value\n' +
+            '        WinWaitActive, Global Time & Expense: Timesheets: Timesheet Grid\n' +
+            '        Sleep 10\n' +
+            '        Send ^v{TAB}\n' +
+            '        Sleep 100\n' +
+            '    }\n' +
+            '    Send {TAB}{TAB}{TAB}{TAB}\n' +
+            '}\n\n' +
+            'Esc::ExitApp\n\n' +
+            '~^LButton::';
         _.forEach(rows, function (row) {
-          autoHotKeyScript += '\nclipboard = ' + row.engagement.split(' - ')[0] + '\nSend ^v{TAB}';
-          autoHotKeyScript += '\nclipboard = ' + row.activity.split(' - ')[0] + '\nSend ^v{TAB}';
-          autoHotKeyScript += '\nclipboard = ' + row.description + '\nSend ^v{TAB}';
-          autoHotKeyScript += '\nclipboard = ' + row.location1.split(' - ')[0] + '\nSend ^v{TAB}';
-          autoHotKeyScript += '\nclipboard = ' + row.location2.split(' - ')[0] + '\nSend ^v{TAB}';
+          autoHotKeyScript += '\nSendToGTE(["' + row.engagement.split(' - ')[0] +
+              '", "' + row.activity.split(' - ')[0] +
+              '", "' + row.description +
+              '", "' + row.location1.split(' - ')[0] +
+              '", "' + row.location2.split(' - ')[0];
           _.forEach(weekdaysForGTE, function (weekday) {
-            autoHotKeyScript += Math.ceil((row[weekday] || 0) * 10) / 10;
-            autoHotKeyScript += '{TAB}';
+            autoHotKeyScript += '", "' + Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10;
           });
-          autoHotKeyScript += '\nSleep 500\nSend, {TAB}{TAB}{TAB}{TAB}';
+          autoHotKeyScript += '")\nSleep 250';
         });
+        autoHotKeyScript += '\nExitApp';
 
         var link = document.createElement('a');
         link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
