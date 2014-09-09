@@ -74,7 +74,7 @@ angular.module('gteApp')
           remainder = row[weekday] + remainder - roundedValue;
           row[weekday] = roundedValue;
         });
-        row.friday += remainder
+        row.friday += remainder;
       };
       $scope.clearTimes = function (rows) {
         _.forEach(rows, function (row) {
@@ -177,10 +177,10 @@ angular.module('gteApp')
         link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
         link.href = 'data:application/octet-stream,' + encodeURIComponent(autoHotKeyScript);
         link.click();
-        var oWin = window.open("about:blank", "_blank");
+        var oWin = window.open('about:blank', '_blank');
         oWin.document.write(autoHotKeyScript);
         oWin.document.close();
-        var success = oWin.document.execCommand('SaveAs', true, 'gte wizard export on ' + (new Date()).toISOString().substring(0, 10) + ' - please drop on AutoHotkey');
+        oWin.document.execCommand('SaveAs', true, 'gte wizard export on ' + (new Date()).toISOString().substring(0, 10) + ' - please drop on AutoHotkey');
         oWin.close();
       };
     });

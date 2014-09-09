@@ -1,5 +1,6 @@
 'use strict';
-/* global _, angular, moment */
+/* global angular */
+/*jshint -W055 */
 
 angular.module('gteApp')
 
@@ -30,7 +31,7 @@ angular.module('gteApp')
       };
     })
 
-    .factory('stopwatchFactory', function ($interval, $timeout) {
+    .factory('stopwatchFactory', function ($interval) {
       return function (options) {
         var interval,
             self = this,
@@ -127,5 +128,5 @@ angular.module('gteApp')
             controller.stopwatchService.stopTimer();
           });
         }
-      }
+      };
     });

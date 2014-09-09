@@ -73,7 +73,7 @@
           <td><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
           <td style="text-align:center">
             {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}
-            <span ng-click="roundRow(row)" tooltip="round values to one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
+            <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
           </td>
           <td style="text-align:center">
             {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime | number:2}}
