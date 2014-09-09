@@ -43,27 +43,38 @@ angular.module('gteApp')
       };
       $scope.addRow = function () {
         var newRow = {
-          _startTime         : null,
-          _running           : null,
-          totalTime          : 0,
-          engagement         : '',
-          activity           : '0000 - General',
-          description        : '',
-          location1          : 'DEU',
-          location2          : 'OTHER',
-          saturday           : 0,
-          sunday             : 0,
-          monday             : 0,
-          tuesday            : 0,
-          wednesday          : 0,
-          thursday           : 0,
-          friday             : 0
+          _startTime : null,
+          _running   : null,
+          totalTime  : 0,
+          engagement : '',
+          activity   : '0000 - General',
+          description: '',
+          location1  : 'DEU',
+          location2  : 'OTHER',
+          saturday   : 0,
+          sunday     : 0,
+          monday     : 0,
+          tuesday    : 0,
+          wednesday  : 0,
+          thursday   : 0,
+          friday     : 0
         };
         $scope.rowsForGTE.push(newRow);
         addWatchesForRow(newRow);
       };
-      $scope.exportAHK = function () {
-
+      $scope.swapRows = function (rows, indexA, indexB) {
+        var tmp = rows[indexA];
+        rows[indexA] = rows[indexB];
+        rows[indexB] = tmp;
+      };
+      $scope.roundRow = function (row) {
+        var remainder = 0;
+        _.forEach(weekdaysForGTE, function(weekday) {
+          var roundedValue = Math.floor((row[weekday] + remainder) * 10) / 10;
+          remainder = row[weekday] + remainder - roundedValue;
+          row[weekday] = roundedValue;
+        });
+        row.friday += remainder
       };
       $scope.clearTimes = function (rows) {
         _.forEach(rows, function (row) {

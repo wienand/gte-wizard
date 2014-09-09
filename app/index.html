@@ -48,11 +48,12 @@
           <th style="width: 5em">Delta</th>
         </tr>
         </thead>
+        <tbody>
         <tr ng-repeat="row in rowsForGTE">
           <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1">
             <span ng-click="rowsForGTE.splice($index, 1)"><i class="glyphicon glyphicon-remove"></i></span>
           </td>
-          <td style="width:7.25em">
+          <td style="width:7.5em">
             <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
                        start-time="row._startTime" running="row._running">
             </stopwatch>
@@ -70,9 +71,21 @@
           <td><input type="number" step="0.1" ng-model="row.wednesday" style="width: 100%"></td>
           <td><input type="number" step="0.1" ng-model="row.thursday" style="width: 100%"></td>
           <td><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
-          <td style="text-align:center">{{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}</td>
-          <td style="text-align:center">{{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime | number:2}}</td>
+          <td style="text-align:center">
+            {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}
+            <span ng-click="roundRow(row)" tooltip="round values to one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
+          </td>
+          <td style="text-align:center">
+            {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime | number:2}}
+            <span ng-hide="$index === 0" ng-click="swapRows(rowsForGTE, $index - 1, $index)" tooltip-placement="left" tooltip="move row up">
+              <i class="glyphicon glyphicon-arrow-up"></i>
+            </span>
+            <span ng-show="$index === 0" ng-click="swapRows(rowsForGTE, $index + 1, $index)" tooltip-placement="left" tooltip="move row down">
+              <i class="glyphicon glyphicon-arrow-down"></i>
+            </span>
+          </td>
         </tr>
+        </tbody>
         <tfoot>
         <tr class="info">
           <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
