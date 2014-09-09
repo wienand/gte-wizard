@@ -172,13 +172,13 @@ angular.module('gteApp')
         _.forEach(rows, function (row) {
           autoHotKeyScript += '\nSendToGTE(["' + row.engagement.split(' - ')[0] +
               '", "' + row.activity.split(' - ')[0] +
-              '", "' + row.description +
+              '", "' + row.description.replace(/"/g, '""') +
               '", "' + row.location1.split(' - ')[0] +
               '", "' + row.location2.split(' - ')[0];
           _.forEach(weekdaysForGTE, function (weekday) {
             autoHotKeyScript += '", "' + Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10;
           });
-          autoHotKeyScript += '")\nSleep 250';
+          autoHotKeyScript += '"])\nSleep 250';
         });
         autoHotKeyScript += '\nExitApp';
 
