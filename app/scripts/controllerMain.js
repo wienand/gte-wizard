@@ -43,7 +43,8 @@ angular.module('gteApp')
       };
       $scope.addRow = function () {
         var newRow = {
-          _internalProperties: {},
+          _startTime         : null,
+          _running           : null,
           totalTime          : 0,
           engagement         : '',
           activity           : '0000 - General',
@@ -119,7 +120,6 @@ angular.module('gteApp')
         $window.localStorage.typeahead = JSON.stringify($scope.typeaheadLastUsed);
       };
       var addWatchesForRow = function (row) {
-        row._internalProperties = {};
         var
             firstCall = true,
             delayedSaveOfTypeahead;

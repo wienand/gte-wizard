@@ -54,7 +54,7 @@
           </td>
           <td style="width:7.25em">
             <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
-                       start-time="row._internalProperties.startTime" running="row._internalProperties.running">
+                       start-time="row._startTime" running="row._running">
             </stopwatch>
           </td>
           <td><input type="text" ng-model="row.engagement" typeahead="engagement for engagement in typeahead.engagement | filter:$viewValue | limitTo:8" style="width: 100%"></td>
