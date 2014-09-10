@@ -158,19 +158,19 @@ angular.module('gteApp')
       $scope.exportAHK = function (rows) {
         var autoHotKeyScript =
             'SendToGTE(data) {\n' +
-            'For index, value in data  {\n' +
-            '        clipboard := value\n' +
-            '        WinWaitActive, Global Time & Expense: Timesheets: Timesheet Grid\n' +
-            '        Sleep 10\n' +
-            '        Send ^v{TAB}\n' +
-            '        Sleep 100\n' +
+            '    Loop, 4 {\n' +
+            '        data.Insert("")\n' +
             '    }\n' +
-            '    Send {TAB}{TAB}{TAB}{TAB}\n' +
+            '    For index, value in data  {\n' +
+            '        WinWaitActive, Global Time & Expense: Timesheets: Timesheet Grid\n' +
+            '        Send %value%{TAB}\n' +
+            '        Sleep 200\n' +
+            '    }\n' +
             '}\n\n' +
             'Esc::ExitApp\n\n' +
-            '~^LButton::';
+            '~^LButton::\n';
         _.forEach(rows, function (row) {
-          autoHotKeyScript += '\nSendToGTE(["' + row.engagement.split(' - ')[0] +
+          autoHotKeyScript += 'SendToGTE(["' + row.engagement.split(' - ')[0] +
               '", "' + row.activity.split(' - ')[0] +
               '", "' + row.description.replace(/"/g, '""') +
               '", "' + row.location1.split(' - ')[0] +
@@ -178,9 +178,9 @@ angular.module('gteApp')
           _.forEach(weekdaysForGTE, function (weekday) {
             autoHotKeyScript += '", "' + Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10;
           });
-          autoHotKeyScript += '"])\nSleep 250';
+          autoHotKeyScript += '"])\n';
         });
-        autoHotKeyScript += '\nExitApp';
+        autoHotKeyScript += 'ExitApp';
 
         var link = document.createElement('a');
         link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
