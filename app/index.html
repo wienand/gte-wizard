@@ -116,11 +116,11 @@
   </div>
   <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries">
     <div class="col-md-3" ng-repeat="(key, entries) in typeahead">
-      <h4>Auto complete: {{key}}</h4>
+      <h3 style="text-decoration: underline;text-align: center">{{key[0].toUpperCase() + key.substring(1)}}</h3>
       <table class="table table-bordered table-striped">
         <thead>
         <tr class="info">
-          <th>Engagement</th>
+          <th>{{key[0].toUpperCase() + key.substring(1)}}</th>
           <th>used on</th>
         </tr>
         </thead>
