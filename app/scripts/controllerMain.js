@@ -76,6 +76,11 @@ angular.module('gteApp')
         });
         row.friday += remainder;
       };
+      $scope.roundRows = function (rows) {
+        _.forEach(rows, function (row) {
+          $scope.roundRow(row);
+        });
+      };
       $scope.clearTimes = function (rows) {
         _.forEach(rows, function (row) {
           row.totalTime = 0;
@@ -170,15 +175,21 @@ angular.module('gteApp')
             'Esc::ExitApp\n\n' +
             '~^LButton::\n';
         _.forEach(rows, function (row) {
-          autoHotKeyScript += 'SendToGTE(["' + row.engagement.split(' - ')[0] +
-              '", "' + row.activity.split(' - ')[0] +
-              '", "' + row.description.replace(/"/g, '""') +
-              '", "' + row.location1.split(' - ')[0] +
-              '", "' + row.location2.split(' - ')[0];
+          var totalAbsoluteHours = 0;
           _.forEach(weekdaysForGTE, function (weekday) {
-            autoHotKeyScript += '", "' + Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10;
+            totalAbsoluteHours += Math.abs(Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10);
           });
-          autoHotKeyScript += '"])\n';
+          if (totalAbsoluteHours > 0) {
+            autoHotKeyScript += 'SendToGTE(["' + row.engagement.split(' - ')[0] +
+            '", "' + row.activity.split(' - ')[0] +
+            '", "' + row.description.replace(/"/g, '""') +
+            '", "' + row.location1.split(' - ')[0] +
+            '", "' + row.location2.split(' - ')[0];
+            _.forEach(weekdaysForGTE, function (weekday) {
+              autoHotKeyScript += '", "' + Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10;
+            });
+            autoHotKeyScript += '"])\n';
+          }
         });
         autoHotKeyScript += 'ExitApp';
 
