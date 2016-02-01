@@ -15,6 +15,14 @@ function getScript(src, callback) {
   document.querySelector('head').appendChild(s);
 }
 
+function detectIE() {
+  var ua = window.navigator.userAgent;
+  var msie = ua.indexOf('MSIE ');
+  var trident = ua.indexOf('Trident/');
+  var edge = ua.indexOf('Edge/');
+  return !!(msie > 0 || trident > 0 || edge > 0);
+}
+
 function writeToMercury(rows) {
   var body = '--batch_cdc0-f6b6-fece--\r\n',
       head = '\r\n--batch_cdc0-f6b6-fece\r\nContent-Type: multipart/mixed; boundary=changeset_1463-1aa4-5014\r\n\r\n\r\n--changeset_1463-1aa4-5014\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\n\r\nPOST TimeEntries HTTP/1.1\r\nAccept-Language: EN\r\nAccept: application/json\r\nContent-Type: application/json\r\n\r\n{"Counter":"","TimeEntryOperation":"C","TimeEntryDataFields":',
@@ -48,29 +56,36 @@ function writeToMercury(rows) {
     alert('Import complete, will reload timesheet application to reflect changes');
     window.location = 'https://mercury-pg1.ey.net:44365/sap/bc/ui5_ui5/sap/zhcm_ts_cre/index.html?sap-client=200';
   } else {
-    alert('Error during transfer!\n\n Please verify engagement codes and in case the error persists contact Oliver Wienand.');
+    alert('Error during transfer! Please verify engagement codes and in case the error persists contact Oliver Wienand.');
   }
 }
 
 function importToMercury() {
-  if (typeof(window.clipboardData) === 'undefined') {
-    var myFirebaseRef = new Firebase("https://gte-wizard.firebaseio.com");
-    myFirebaseRef.authWithOAuthPopup("google", function (error, authData) {
-      myFirebaseRef.child(authData.auth.uid).once("value", function (rows) {
-        writeToMercury(rows.val());
-        myFirebaseRef.child(authData.auth.uid).remove();
-      });
-    });
-  } else {
-    writeToMercury(JSON.parse(window.clipboardData.getData('Text')));
+  /*
+   if (typeof(window.clipboardData) === 'undefined') {
+   var myFirebaseRef = new Firebase("https://gte-wizard.firebaseio.com");
+   myFirebaseRef.authWithOAuthPopup("google", function (error, authData) {
+   myFirebaseRef.child(authData.auth.uid).once("value", function (rows) {
+   writeToMercury(rows.val());
+   myFirebaseRef.child(authData.auth.uid).remove();
+   });
+   });
+   } else */
+  {
+    if (!detectIE()) {
+      alert('Importing data to Mercury only works in Internet Explorer. Recording of times in Timesheet Plus can happen in any browser.');
+      return
+    }
+    if (window.location.host !== 'mercury-pg1.ey.net:44365') {
+      alert('Bookmarklet can only be used on Mercury. Current host is ' + window.location.host + ' and it should be mercury-pg1.ey.net:44365.\n\nIf you disagree please contact Oliver Wienand.');
+      return
+    }
+    try {
+      writeToMercury(JSON.parse(window.clipboardData.getData('Text')));
+    } catch (e) {
+      alert('Could not parse clipboard data. Maybe you copied something there after exporting from Timesheets Plus?\n\nError stack:\n' + e.stack + '\n\nClipboard data:\n' + window.clipboardData.getData('Text'));
+    }
   }
-}
-
-function loadAndExecuteInMercury() {
-  var r = new XMLHttpRequest();
-  r.open('GET', 'https://gte-wizard.firebaseio.com/code.json', false);
-  r.send();
-  eval(JSON.parse(r.responseText));
 }
 
 getScript('https://cdn.firebase.com/js/client/2.2.4/firebase.js', importToMercury);

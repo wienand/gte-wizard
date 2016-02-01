@@ -47,7 +47,6 @@ angular.module('gteApp')
           totalByType[chargeType] = totalByType[chargeType] || 0;
           totalByType[chargeType] += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
         });
-        console.log(totalByType);
         return totalByType;
       };
       $scope.deleteAllRows = function (rows) {
