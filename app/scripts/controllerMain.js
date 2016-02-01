@@ -12,8 +12,12 @@ angular.module('gteApp')
     .controller('MainCtrl', function ($window, $timeout, $scope) {
       var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
           weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          chargeTypes = {C: 'External projects', I: 'Internal projects', A: 'Absences'};
-
+          chargeTypes = {
+            E: 'External projects',
+            C: 'Cost centers',
+            I: 'Internal projects',
+            A: 'Absences'
+          };
       $scope.callbackToggleFactory = function (row) {
         return function (stopped, oldTime, newTime) {
           var weekday = weekdays[(new Date()).getDay()];
@@ -128,8 +132,8 @@ angular.module('gteApp')
             engagement : {},
             activity   : {'0000 - General': new Date().toJSON()},
             description: {},
-            location1  : {'DEU': new Date().toJSON()},
-            location2  : {'OTHER': new Date().toJSON()}
+            location1  : {'DE': new Date().toJSON()},
+            location2  : {'REG': new Date().toJSON()}
           };
       $scope.typeahead = {};
       _.forEach($scope.typeaheadLastUsed, function (value, key, list) {
@@ -171,31 +175,38 @@ angular.module('gteApp')
       };
       _.forEach($scope.rowsForGTE, addWatchesForRow);
 
-      $scope.jsonForMercury = function (rows) {
+      $scope.refMomentForExport = moment();
+      $scope.jsonForMercury = function (rows, refMoment) {
         var dataForMercury = [];
-
+        refMoment = refMoment || moment();
 
         _.forEach(rows, function (row) {
           _.forEach(weekdaysForGTE, function (weekday) {
             var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
                 weekdayOfEntry = weekdays.indexOf(weekday),
-                dateOfEntry = moment().startOf('week').add(weekdayOfEntry, 'days').format('YYYYMMDD');
+                dateOfEntry = refMoment.startOf('week').add(weekdayOfEntry, 'days').format('YYYYMMDD');
 
             if (Math.abs(duration) > 0) {
-              dataForMercury.push({
-                date       : dateOfEntry,
-                engagement : row.engagement.split(' - ')[0] + '-' + row.activity.split(' - ')[0],
-                description: row.description,
-                location   : row.location1.split(' - ')[0],
-                role       : row.location2.split(' - ')[0],
-                duration   : duration
-              });
+              var entry = {
+                    date       : dateOfEntry,
+                    description: row.description,
+                    location   : row.location1.split(' - ')[0],
+                    role       : row.location2.split(' - ')[0],
+                    duration   : duration
+                  },
+                  activity = row.activity.split(' - ')[0];
+              if (activity.indexOf(':') > -1) {
+                activity = activity.split(':');
+                entry.type = activity[0];
+                activity = activity[1];
+              }
+              entry.engagement = row.engagement.split(' - ')[0] + '-' + activity;
+              dataForMercury.push(entry);
             }
           });
         });
         return dataForMercury;
       };
-
       $scope.exportForMercury = function () {
         /*
          if (localStorage.useFirebase) {

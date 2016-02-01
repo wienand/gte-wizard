@@ -1,5 +1,5 @@
 /**
- * Created by DEOWIEN1 on 29.01.2016.
+ * Used to import data to Mercury
  */
 
 function getScript(src, callback) {
@@ -39,6 +39,9 @@ function writeToMercury(rows) {
       LONGTEXT_DATA: rows[i].description,
       LONGTEXT     : "X"
     };
+    if (rows[i].hasOwnProperty('type')) {
+      entry.AWART = rows[i].type;
+    }
     body = head + JSON.stringify(entry) + tail + body;
   }
   var httpForToken = new XMLHttpRequest();

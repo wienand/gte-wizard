@@ -31,9 +31,9 @@
       <thead>
       <tr class="info">
         <th colspan="2">Timer</th>
-        <th>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
-        <th>Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
-        <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th>Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
         <th style="width: 5em">Loc</th>
         <th style="width: 5em">Role</th>
         <th style="width: 5em">Sat</th>
@@ -45,7 +45,9 @@
         <th style="width: 5em">Fri</th>
         <th style="width: 5em">
           Total
-          <span ng-click="roundRows(rowsForGTE)" tooltip="distribute times between days to get only one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
+          <span ng-click="roundRows(rowsForGTE)" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
+            <i class="glyphicon glyphicon-transfer"></i>
+          </span>
         </th>
         <th style="width: 5em">Delta</th>
       </tr>
@@ -54,7 +56,7 @@
         <tbody>
         <tr ng-repeat="row in rowsForGTE">
           <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1">
-            <span ng-click="rowsForGTE.splice($index, 1)"><i class="glyphicon glyphicon-remove"></i></span>
+            <span ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
           </td>
           <td style="width:7.5em">
             <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
@@ -76,14 +78,16 @@
           <td><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
           <td style="text-align:center">
             {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}
-            <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
+            <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
+              <i class="glyphicon glyphicon-transfer"></i>
+            </span>
           </td>
           <td style="text-align:center">
             {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime | number:2}}
-            <span ng-hide="$index === 0" ng-click="swapRows(rowsForGTE, $index - 1, $index)" tooltip-placement="left" tooltip="move row up">
+            <span ng-hide="$index === 0" ng-click="swapRows(rowsForGTE, $index - 1, $index)" tooltip-placement="left" tooltip="move row up" style="cursor: pointer">
               <i class="glyphicon glyphicon-arrow-up"></i>
             </span>
-            <span ng-show="$index === 0" ng-click="swapRows(rowsForGTE, $index + 1, $index)" tooltip-placement="left" tooltip="move row down">
+            <span ng-show="$index === 0" ng-click="swapRows(rowsForGTE, $index + 1, $index)" tooltip-placement="left" tooltip="move row down" style="cursor: pointer">
               <i class="glyphicon glyphicon-arrow-down"></i>
             </span>
           </td>
@@ -94,8 +98,8 @@
       <tr class="info">
         <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
         <th colspan="3">
-          <span ng-repeat="(key, value) in aggregateByType(rowsForGTE)" class="label label-default" style="margin-right:10px;padding-top:6px;padding-bottom:6px;">
-            {{key}} <span class="badge" style="background-color:darkblue">{{value | number:1}}</span>
+          <span ng-show="value" ng-repeat="(key, value) in aggregateByType(rowsForGTE)" class="label label-default" style="margin-right:10px;padding-top:6px;padding-bottom:6px;">
+            {{key}} <span class="badge" style="background-color:#3071a9">{{value | number:1}}</span>
           </span>
         </th>
         <th colspan="2">
@@ -118,9 +122,14 @@
     <div style="text-align: center">
       <button ng-click="deleteAllRows(rowsForGTE)" style="width: 20%; margin-right: 5%" class="btn btn-danger">Delete all rows</button>
       <button ng-click="addRow()" style="width: 20%; margin-right: 5%" class="btn btn-primary">Add row</button>
-      <button ui-zeroclip zeroclip-text="{{jsonForMercury(rowsForGTE)}}" ng-click="exportForMercury()" id="mercury" style="width: 20%; margin-right: 5%"
-              class="btn btn-primary">Export for Mercury
-      </button>
+      <span style="width: 20%; margin-right: 5%">
+        <span ng-click="refMomentForExport.add(-1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-left"></i></span>
+        <button ui-zeroclip zeroclip-text="{{jsonForMercury(rowsForGTE, refMomentForExport)}}" ng-click="exportForMercury()" id="mercury"
+                class="btn btn-primary">
+          Export for Mercury for week {{refMomentForExport.startOf('week').add(1, 'day').format('YYYY-MM-DD')}}
+        </button>
+        <span ng-click="refMomentForExport.add(1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-right"></i></span>
+      </span>
       <button ng-click="clearTimes(rowsForGTE)" style="width: 20%" class="btn btn-warning">Clear times</button>
     </div>
   </div>
@@ -185,6 +194,7 @@
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js"></script>
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
+<script src="bower_components/moment/moment.js"></script>
 <!-- endbower -->
 <script src="bower_components/underscore/underscore.js"></script>
 <script src="bower_components/moment/min/moment.min.js"></script>
