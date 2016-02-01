@@ -13,10 +13,10 @@ angular.module('gteApp')
       var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
           weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
           chargeTypes = {
-            E: 'External projects',
+            A: 'Absences',
             C: 'Cost centers',
-            I: 'Internal projects',
-            A: 'Absences'
+            E: 'External projects',
+            I: 'Internal projects'
           };
       $scope.callbackToggleFactory = function (row) {
         return function (stopped, oldTime, newTime) {
