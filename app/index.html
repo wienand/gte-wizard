@@ -3,8 +3,8 @@
 <html class="no-js">
 <head>
   <meta charset="utf-8">
-  <title>GTE Wizard</title>
-  <meta name="description" content="">
+  <title>Timesheets Plus</title>
+  <meta name="description" content="Used to ease time recording">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
   <!-- favicon.ico from http://findicons.com/icon/444035/full_time?id=444149
@@ -27,30 +27,30 @@
 
 <div ng-controller="MainCtrl" class="container-fluid">
   <div class="row">
-    <form>
-      <table class="table table-bordered table-striped">
-        <thead>
-        <tr class="info">
-          <th colspan="2">Timer</th>
-          <th>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
-          <th>Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
-          <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
-          <th style="width: 5em">Loc 1</th>
-          <th style="width: 5em">Loc 2</th>
-          <th style="width: 5em">Sat</th>
-          <th style="width: 5em">Son</th>
-          <th style="width: 5em">Mon</th>
-          <th style="width: 5em">Tue</th>
-          <th style="width: 5em">Wed</th>
-          <th style="width: 5em">Thu</th>
-          <th style="width: 5em">Fri</th>
-          <th style="width: 5em">
-            Total
-            <span ng-click="roundRows(rowsForGTE)" tooltip="distribute times between days to get only one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
-          </th>
-          <th style="width: 5em">Delta</th>
-        </tr>
-        </thead>
+    <table class="table table-bordered table-striped">
+      <thead>
+      <tr class="info">
+        <th colspan="2">Timer</th>
+        <th>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th>Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th style="width: 5em">Loc</th>
+        <th style="width: 5em">Role</th>
+        <th style="width: 5em">Sat</th>
+        <th style="width: 5em">Son</th>
+        <th style="width: 5em">Mon</th>
+        <th style="width: 5em">Tue</th>
+        <th style="width: 5em">Wed</th>
+        <th style="width: 5em">Thu</th>
+        <th style="width: 5em">Fri</th>
+        <th style="width: 5em">
+          Total
+          <span ng-click="roundRows(rowsForGTE)" tooltip="distribute times between days to get only one decimal place"><i class="glyphicon glyphicon-transfer"></i></span>
+        </th>
+        <th style="width: 5em">Delta</th>
+      </tr>
+      </thead>
+      <form>
         <tbody>
         <tr ng-repeat="row in rowsForGTE">
           <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1">
@@ -89,31 +89,38 @@
           </td>
         </tr>
         </tbody>
-        <tfoot>
-        <tr class="info">
-          <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
-          <th colspan="5">
-            <button class="btn btn-primary btn-xs" style="width: 100%" ng-click="editTypeaheadEntries = !editTypeaheadEntries">
-              Edit auto complete entries
-            </button>
-          </th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'monday') | number:1}}</th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'tuesday') | number:1}}</th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'wednesday') | number:1}}</th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
-          <th style="text-align:center">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
-          <th style="text-align:center">{{getTotal(rowsForGTE) | number:1}}</th>
-          <th style="text-align:center">{{getTotalDiff(rowsForGTE) | number:2}}</th>
-        </tr>
-        </tfoot>
-      </table>
-    </form>
+      </form>
+      <tfoot>
+      <tr class="info">
+        <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
+        <th colspan="3">
+          <span ng-repeat="(key, value) in aggregateByType(rowsForGTE)" class="label label-default" style="margin-right:10px;padding-top:6px;padding-bottom:6px;">
+            {{key}} <span class="badge" style="background-color:darkblue">{{value | number:1}}</span>
+          </span>
+        </th>
+        <th colspan="2">
+          <button class="btn btn-primary btn-xs" ng-click="editTypeaheadEntries = !editTypeaheadEntries">
+            Edit auto complete entries
+          </button>
+        </th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'monday') | number:1}}</th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'tuesday') | number:1}}</th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'wednesday') | number:1}}</th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
+        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
+        <th style="text-align:center">{{getTotal(rowsForGTE) | number:1}}</th>
+        <th style="text-align:center">{{getTotalDiff(rowsForGTE) | number:2}}</th>
+      </tr>
+      </tfoot>
+    </table>
     <div style="text-align: center">
       <button ng-click="deleteAllRows(rowsForGTE)" style="width: 20%; margin-right: 5%" class="btn btn-danger">Delete all rows</button>
       <button ng-click="addRow()" style="width: 20%; margin-right: 5%" class="btn btn-primary">Add row</button>
-      <button ng-click="exportAHK(rowsForGTE)" style="width: 20%; margin-right: 5%" class="btn btn-primary">Export AHK</button>
+      <button ui-zeroclip zeroclip-text="{{jsonForMercury(rowsForGTE)}}" ng-click="exportForMercury()" id="mercury" style="width: 20%; margin-right: 5%"
+              class="btn btn-primary">Export for Mercury
+      </button>
       <button ng-click="clearTimes(rowsForGTE)" style="width: 20%" class="btn btn-warning">Clear times</button>
     </div>
   </div>
@@ -170,6 +177,9 @@
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
 <!-- endbower -->
 <script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/moment/min/moment.min.js"></script>
+<script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
+<script src="bower_components/angular-zeroclipboard.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
@@ -178,5 +188,6 @@
 <script src="scripts/directiveStopWatch.js"></script>
 <script src="scripts/controllerMain.js"></script>
 <!-- endbuild -->
+
 </body>
 </html>

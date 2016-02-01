@@ -9,4 +9,4 @@
  * Main module of the application.
  */
 angular
-    .module('gteApp', [ 'ui.bootstrap' ]);
+    .module('gteApp', ['ui.bootstrap', 'zeroclipboard']);

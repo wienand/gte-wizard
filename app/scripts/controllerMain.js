@@ -1,5 +1,5 @@
 'use strict';
-/* global _, angular*/
+/* global _, angular, moment, alert*/
 
 /**
  * @ngdoc function
@@ -11,7 +11,9 @@
 angular.module('gteApp')
     .controller('MainCtrl', function ($window, $timeout, $scope) {
       var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
-          weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+          weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+          chargeTypes = {C: 'External projects', I: 'Internal projects', A: 'Absences'};
+
       $scope.callbackToggleFactory = function (row) {
         return function (stopped, oldTime, newTime) {
           var weekday = weekdays[(new Date()).getDay()];
@@ -38,6 +40,16 @@ angular.module('gteApp')
         });
         return totalDiff;
       };
+      $scope.aggregateByType = function (rows) {
+        var totalByType = {};
+        _.forEach(rows, function (row) {
+          var chargeType = chargeTypes[row.engagement.charAt(0)] || row.engagement.charAt(0);
+          totalByType[chargeType] = totalByType[chargeType] || 0;
+          totalByType[chargeType] += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+        });
+        console.log(totalByType);
+        return totalByType;
+      };
       $scope.deleteAllRows = function (rows) {
         rows.splice(0, rows.length);
       };
@@ -49,8 +61,8 @@ angular.module('gteApp')
           engagement : '',
           activity   : '0000 - General',
           description: '',
-          location1  : 'DEU',
-          location2  : 'OTHER',
+          location1  : 'DE',
+          location2  : 'REG',
           saturday   : 0,
           sunday     : 0,
           monday     : 0,
@@ -113,13 +125,13 @@ angular.module('gteApp')
       };
       $scope.rowsForGTE = JSON.parse($window.localStorage.rowsForGTE || null) || [];
       $scope.typeaheadLastUsed = JSON.parse($window.localStorage.typeahead || null) ||
-      {
-        engagement : {},
-        activity   : {'0000 - General': new Date().toJSON()},
-        description: {},
-        location1  : {'DEU': new Date().toJSON()},
-        location2  : {'OTHER': new Date().toJSON()}
-      };
+          {
+            engagement : {},
+            activity   : {'0000 - General': new Date().toJSON()},
+            description: {},
+            location1  : {'DEU': new Date().toJSON()},
+            location2  : {'OTHER': new Date().toJSON()}
+          };
       $scope.typeahead = {};
       _.forEach($scope.typeaheadLastUsed, function (value, key, list) {
         $scope.typeahead[key] = _.keys(list[key]);
@@ -160,47 +172,45 @@ angular.module('gteApp')
       };
       _.forEach($scope.rowsForGTE, addWatchesForRow);
 
-      $scope.exportAHK = function (rows) {
-        var autoHotKeyScript =
-            'SendToGTE(data) {\n' +
-            '    Loop, 4 {\n' +
-            '        data.Insert("")\n' +
-            '    }\n' +
-            '    For index, value in data  {\n' +
-            '        WinWaitActive, Global Time & Expense: Timesheets: Timesheet Grid\n' +
-            '        Send %value%{TAB}\n' +
-            '        Sleep 200\n' +
-            '    }\n' +
-            '}\n\n' +
-            'Esc::ExitApp\n\n' +
-            '~^LButton::\n';
-        _.forEach(rows, function (row) {
-          var totalAbsoluteHours = 0;
-          _.forEach(weekdaysForGTE, function (weekday) {
-            totalAbsoluteHours += Math.abs(Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10);
-          });
-          if (totalAbsoluteHours > 0) {
-            autoHotKeyScript += 'SendToGTE(["' + row.engagement.split(' - ')[0] +
-            '", "' + row.activity.split(' - ')[0] +
-            '", "' + row.description.replace(/"/g, '""') +
-            '", "' + row.location1.split(' - ')[0] +
-            '", "' + row.location2.split(' - ')[0];
-            _.forEach(weekdaysForGTE, function (weekday) {
-              autoHotKeyScript += '", "' + Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10;
-            });
-            autoHotKeyScript += '"])\n';
-          }
-        });
-        autoHotKeyScript += 'ExitApp';
+      $scope.jsonForMercury = function (rows) {
+        var dataForMercury = [];
 
-        var link = document.createElement('a');
-        link.download = 'gte wizard export on ' + (new Date()).toISOString() + '.ahk';
-        link.href = 'data:application/octet-stream,' + encodeURIComponent(autoHotKeyScript);
-        link.click();
-        var oWin = window.open('about:blank', '_blank');
-        oWin.document.write(autoHotKeyScript);
-        oWin.document.close();
-        oWin.document.execCommand('SaveAs', true, 'gte wizard export on ' + (new Date()).toISOString().substring(0, 10) + ' - please drop on AutoHotkey');
-        oWin.close();
+
+        _.forEach(rows, function (row) {
+          _.forEach(weekdaysForGTE, function (weekday) {
+            var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
+                weekdayOfEntry = weekdays.indexOf(weekday),
+                dateOfEntry = moment().startOf('week').add(weekdayOfEntry, 'days').format('YYYYMMDD');
+
+            if (Math.abs(duration) > 0) {
+              dataForMercury.push({
+                date       : dateOfEntry,
+                engagement : row.engagement.split(' - ')[0] + '-' + row.activity.split(' - ')[0],
+                description: row.description,
+                location   : row.location1.split(' - ')[0],
+                role       : row.location2.split(' - ')[0],
+                duration   : duration
+              });
+            }
+          });
+        });
+        return dataForMercury;
+      };
+
+      $scope.exportForMercury = function () {
+        /*
+         if (localStorage.useFirebase) {
+         // <!-- Firebase -->
+         // <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+         // <script src="https://cdn.firebase.com/libs/angularfire/1.1.3/angularfire.min.js"></script>
+         var myFirebaseRef = new Firebase("https://gte-wizard.firebaseio.com");
+         myFirebaseRef.authWithOAuthPopup("google", function (error, authData) {
+         myFirebaseRef.child(authData.auth.uid).set(dataForMercury);
+         });
+         } else */
+        {
+          // window.clipboardData.setData('Text', JSON.stringify(dataForMercury));
+          alert('Please directly import the data to Mercury as it is stored in the clipboard!');
+        }
       };
     });
