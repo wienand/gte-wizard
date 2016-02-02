@@ -1,17 +1,17 @@
 'use strict';
 
-describe('Controller: MainCtrl', function () {
+describe('Controller: TimesheetCtrl', function () {
 
   // load the controller's module
   beforeEach(module('gteApp'));
 
-  var MainCtrl,
+  var TimesheetCtrl,
     scope;
 
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($controller, $rootScope) {
     scope = $rootScope.$new();
-    MainCtrl = $controller('MainCtrl', {
+    TimesheetCtrl = $controller('TimesheetCtrl', {
       $scope: scope
     });
   }));
