@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  /* global _, angular, console, moment */
+  /* global _, angular, console, moment, alert */
 
   angular.module('gteApp')
       .controller('TimesheetCtrl', function ($window, $timeout, $scope) {
@@ -250,7 +250,7 @@
            } else */
           {
             // window.clipboardData.setData('Text', JSON.stringify(dataForMercury));
-            alert('Please directly import the data to Mercury as it is stored in the clipboard!');
+            alert('Please directly import the data to Mercury as it is stored in the clipboard!\n\nPlease find the bookmarklet required for the import to Mercury on the end of the page after hitting "Edit auto complete entries".');
           }
         };
       });
