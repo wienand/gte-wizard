@@ -55,9 +55,22 @@ function writeToMercury(rows) {
   httpForEntry.setRequestHeader("Content-Type", "multipart/mixed;boundary=batch_cdc0-f6b6-fece");
   httpForEntry.setRequestHeader("x-csrf-token", token);
   httpForEntry.send(body);
+
+  var statusCodes = httpForEntry.responseText.match(RegExp('^HTTP/1\.1 (...)', 'gim')),
+      errorMessages = httpForEntry.responseText.match(RegExp('"message":{.*?}', 'gim')),
+      errorCount = 0;
+  for (var i = 0; i < statusCodes.length; i++) {
+    if (Math.floor(statusCodes[i].split(' ')[1] / 100) !== 2) {
+      errorCount += 1;
+    }
+  }
   if (Math.floor(httpForEntry.status / 100) === 2) {
-    alert('Import complete, will reload timesheet application to reflect changes');
-    window.location = 'https://mercury-pg1.ey.net:44365/sap/bc/ui5_ui5/sap/zhcm_ts_cre/index.html?sap-client=200';
+    if (errorCount === 0) {
+      alert('Import complete, will reload timesheet application to reflect changes');
+      window.location = 'https://mercury-pg1.ey.net:44365/sap/bc/ui5_ui5/sap/zhcm_ts_cre/index.html?sap-client=200&sap-language=EN';
+    } else {
+      alert('At least ' + errorCount + ' entries failed. Please verify engagement codes and in case the error persists contact Oliver Wienand.\n\nErrors: ' + errorMessages);
+    }
   } else {
     alert('Error during transfer! Please verify engagement codes and in case the error persists contact Oliver Wienand.');
   }
