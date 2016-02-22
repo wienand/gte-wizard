@@ -284,6 +284,7 @@
           $window.localStorage.timesheetChangeUUID = localChangeUUID;
           $window.localStorage.rowsForGTE = JSON.stringify(rowsForGTE);
           updateRowsFromLocalStorage(rowsForGTE);
+          $scope.$apply();
         };
       });
 })();
