@@ -239,8 +239,8 @@
           _.forEach(rows, function (row) {
             _.forEach(weekdaysForGTE, function (weekday) {
               var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
-                  weekdayOfEntry = weekdays.indexOf(weekday),
-                  dateOfEntry = refMoment.startOf('week').add(weekdayOfEntry, 'days').format('YYYYMMDD');
+                  weekdayOfEntry = weekdaysForGTE.indexOf(weekday),
+                  dateOfEntry = moment(refMoment.startOf('week')).add(weekdayOfEntry - 1, 'days').format('YYYYMMDD');
 
               if (Math.abs(duration) > 0) {
                 var entry = {
