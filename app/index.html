@@ -194,7 +194,7 @@
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL+'/export.html'; document.body.appendChild(frm);window.addEventListener('message', f);">
           Print timesheet from Mercury
         </a>
-        <a class="btn btn-warning btn-large"
+        <a class="btn btn-warning btn-large" ng-hide="detectIE"
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL; document.body.appendChild(frm); window.addEventListener('message', f);">
           Activate Timesheet Plus
         </a>
