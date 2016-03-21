@@ -279,7 +279,7 @@
         $scope.onTopOfMercury = $window.self !== $window.top;
         $scope.originOfMercury = $window.document.referrer.split('/')[0] + '//' + $window.document.referrer.split('/')[2];
         $scope.originOfMyself = $window.location.origin;
-        $scope.noHTTPS = false:
+        $scope.noHTTPS = false;
         if ($window.location.protocol === 'http:') {
           $scope.originOfMyself = 'https://defravmfoi0d51c.ey.net';
           $scope.noHTTPS = true;
