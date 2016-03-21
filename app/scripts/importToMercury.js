@@ -70,23 +70,26 @@ function writeToMercury(rows) {
 }
 
 function importToMercury() {
-  if (bURL && e && (e.origin === bURL)) {
-    writeToMercury(e.data.rows)
+  try {
+    if (bURL && e && (e.origin === bURL)) {
+      writeToMercury(e.data.rows);
+      return;
+    }
+  } catch (error) {
+    console.log(error);
   }
-  else {
-    if (!detectIE()) {
-      alert('Importing data to Mercury only works in Internet Explorer. Recording of times in Timesheet Plus can happen in any browser.');
-      return
-    }
-    if (window.location.host !== 'mercury-pg1.ey.net:44365') {
-      alert('Bookmarklet can only be used on Mercury. Current host is ' + window.location.host + ' and it should be mercury-pg1.ey.net:44365.\n\nIf you disagree please contact Oliver Wienand.');
-      return
-    }
-    try {
-      writeToMercury(JSON.parse(window.clipboardData.getData('Text')));
-    } catch (e) {
-      alert('Could not parse clipboard data. Maybe you copied something there after exporting from Timesheets Plus?\n\nError stack:\n' + e.stack + '\n\nClipboard data:\n' + window.clipboardData.getData('Text'));
-    }
+  if (!detectIE()) {
+    alert('Importing data to Mercury only works in Internet Explorer. Recording of times in Timesheet Plus can happen in any browser.');
+    return
+  }
+  if (window.location.host !== 'mercury-pg1.ey.net:44365') {
+    alert('Bookmarklet can only be used on Mercury. Current host is ' + window.location.host + ' and it should be mercury-pg1.ey.net:44365.\n\nIf you disagree please contact Oliver Wienand.');
+    return
+  }
+  try {
+    writeToMercury(JSON.parse(window.clipboardData.getData('Text')));
+  } catch (e) {
+    alert('Could not parse clipboard data. Maybe you copied something there after exporting from Timesheets Plus?\n\nError stack:\n' + e.stack + '\n\nClipboard data:\n' + window.clipboardData.getData('Text'));
   }
 }
 
