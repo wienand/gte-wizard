@@ -278,9 +278,10 @@
         // Mercury integration
         $scope.onTopOfMercury = $window.self !== $window.top;
         $scope.originOfMercury = $window.document.referrer.split('/')[0] + '//' + $window.document.referrer.split('/')[2];
+        $scope.originOfMyself = $window.location.origin;
         $scope.printTimesheet = function () {
           $http.get('scripts/exportFromMercury.js').then(function (response) {
-            $window.parent.postMessage({f: '(function() {' + response.data.replace('http://localhost:9050', $window.location.origin) + '})'}, $scope.originOfMercury)
+            $window.parent.postMessage({f: '(function(event) {' + response.data.replace('http://localhost:9050', $window.location.origin) + '})'}, $scope.originOfMercury)
           }, function (response) {
             console.log(response);
             alert('Error during downloading of export script!');
@@ -329,12 +330,14 @@
           var setIFrameAttributes = function () {
             var positionIFrame = function () {
               if (window.location.hash) {
-                frm.setAttribute('style', 'position:fixed; margin-top:' + document.getElementById('__toolbar0').getBoundingClientRect().bottom + 'px; top: 0; width:100%; height:100%');
+                frm.setAttribute('style', 'position:fixed; margin-top:'
+                    + document.getElementById('__toolbar0').getBoundingClientRect().bottom
+                    + 'px; top: 0; left: 0; width:100%; height:100%');
               } else {
                 var anchor = document.getElementById('__xmlview2--calendar');
                 frm.setAttribute('style', 'position:fixed; margin-top:'
                     + (anchor.getBoundingClientRect().bottom - anchor.getBoundingClientRect().top + 48)
-                    + 'px; top: 0; width:100%; height:100%');
+                    + 'px; top: 0; left: 0; width:100%; height:100%');
               }
             };
             var schedulePositionUpdate = function () {
@@ -345,6 +348,14 @@
           };
           $window.parent.postMessage({f: '(' + setIFrameAttributes + ')'}, $scope.originOfMercury)
         }
+        $scope.closeOverlay = function () {
+          var close = function () {
+            window.removeEventListener('message', f);
+            //noinspection JSUnresolvedVariable
+            frm.parentNode.removeChild(frm);
+          };
+          $window.parent.postMessage({f: '(' + close + ')'}, $scope.originOfMercury);
+        };
         
         var ua = $window.navigator.userAgent;
         $scope.detectIE = !!(ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0);
