@@ -3,7 +3,7 @@
   /* global _, angular, console, moment, alert, confirm */
 
   angular.module('gteApp')
-      .controller('TimesheetCtrl', function ($window, $timeout, $scope) {
+      .controller('TimesheetCtrl', function ($window, $http, $timeout, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
             chargeTypes = {
@@ -264,20 +264,8 @@
           return dataForMercury;
         };
         $scope.exportForMercury = function () {
-          /*
-           if (localStorage.useFirebase) {
-           // <!-- Firebase -->
-           // <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
-           // <script src="https://cdn.firebase.com/libs/angularfire/1.1.3/angularfire.min.js"></script>
-           var myFirebaseRef = new Firebase("https://gte-wizard.firebaseio.com");
-           myFirebaseRef.authWithOAuthPopup("google", function (error, authData) {
-           myFirebaseRef.child(authData.auth.uid).set(dataForMercury);
-           });
-           } else */
-          {
-            // window.clipboardData.setData('Text', JSON.stringify(dataForMercury));
-            alert('Please directly import the data to Mercury as it is stored in the clipboard!\n\nPlease find the bookmarklet required for the import to Mercury on the end of the page after hitting "Edit auto complete entries".');
-          }
+          // window.clipboardData.setData('Text', JSON.stringify(dataForMercury));
+          alert('Please directly import the data to Mercury as it is stored in the clipboard!\n\nPlease find the bookmarklet required for the import to Mercury on the end of the page after hitting "Edit auto complete entries".');
         };
         $scope.sendTimesheetUpdate = $scope.sendTimesheetUpdate || {};
         $scope.sendTimesheetUpdate.exec = function (rowsForGTE) {
@@ -286,5 +274,80 @@
           updateRowsFromLocalStorage(rowsForGTE);
           $scope.$apply();
         };
+
+        // Mercury integration
+        $scope.onTopOfMercury = $window.self !== $window.top;
+        $scope.originOfMercury = $window.document.referrer.split('/')[0] + '//' + $window.document.referrer.split('/')[2];
+        $scope.printTimesheet = function () {
+          $http.get('scripts/exportFromMercury.js').then(function (response) {
+            $window.parent.postMessage({f: '(function() {' + response.data.replace('http://localhost:9050', $window.location.origin) + '})'}, $scope.originOfMercury)
+          }, function (response) {
+            console.log(response);
+            alert('Error during downloading of export script!');
+          });
+        };
+        $scope.importToMercury = function (rowsForGTE) {
+          var getWeekShownInMercury = function (event) {
+            if (document.location.hash.indexOf('#/detail') === 0) {
+              //noinspection JSUnresolvedVariable
+              window.frames[0].postMessage({
+                msg           : 'import',
+                rowsForGTE    : event.data.rowsForGTE,
+                firstDayOfWeek: new Date(document.getElementsByClassName('sapMeCalendarType00')[0].getElementsByTagName('input')[0].value)
+              }, bURL);
+            } else {
+              alert('Import only on week view of Mercury!');
+            }
+          };
+          $window.parent.postMessage({f: '(' + getWeekShownInMercury + ')', rowsForGTE: rowsForGTE}, $scope.originOfMercury)
+        };
+        var receiveMessage = function (event) {
+          if (event.origin !== $scope.originOfMercury) {
+            return;
+          }
+          console.log(event);
+          if (event.data.msg === 'import') {
+            var rows = $scope.jsonForMercury(event.data.rowsForGTE, moment(event.data.firstDayOfWeek).add(3, 'days'));
+            if (rows.length === 0) {
+              alert('Nothing to import!')
+              return;
+            }
+            console.log(rows);
+            $http.get('scripts/importToMercury.js').then(function (response) {
+              $window.parent.postMessage({
+                f   : '(function() {' + response.data.replace('http://localhost:9050', $window.location.origin) + '})',
+                rows: rows
+              }, $scope.originOfMercury)
+            }, function (response) {
+              console.log(response);
+              alert('Error during downloading of import script!');
+            });
+          }
+          $scope.$apply();
+        };
+        $window.addEventListener('message', receiveMessage);
+        if ($scope.onTopOfMercury) {
+          var setIFrameAttributes = function () {
+            var positionIFrame = function () {
+              if (window.location.hash) {
+                frm.setAttribute('style', 'position:fixed; margin-top:' + document.getElementById('__toolbar0').getBoundingClientRect().bottom + 'px; top: 0; width:100%; height:100%');
+              } else {
+                var anchor = document.getElementById('__xmlview2--calendar');
+                frm.setAttribute('style', 'position:fixed; margin-top:'
+                    + (anchor.getBoundingClientRect().bottom - anchor.getBoundingClientRect().top + 48)
+                    + 'px; top: 0; width:100%; height:100%');
+              }
+            };
+            var schedulePositionUpdate = function () {
+              setTimeout(positionIFrame, 1000);
+            };
+            window.addEventListener('hashchange', schedulePositionUpdate, false);
+            positionIFrame();
+          };
+          $window.parent.postMessage({f: '(' + setIFrameAttributes + ')'}, $scope.originOfMercury)
+        }
+        
+        var ua = $window.navigator.userAgent;
+        $scope.detectIE = !!(ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0);
       });
 })();

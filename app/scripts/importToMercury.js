@@ -1,19 +1,7 @@
 /**
  * Used to import data to Mercury
  */
-
-function getScript(src, callback) {
-  var s = document.createElement('script');
-  s.src = src;
-  s.async = true;
-  s.onreadystatechange = s.onload = function () {
-    if (!callback.done && (!s.readyState || /loaded|complete/.test(s.readyState))) {
-      callback.done = true;
-      callback();
-    }
-  };
-  document.querySelector('head').appendChild(s);
-}
+/* global bURL, e */
 
 function detectIE() {
   var ua = window.navigator.userAgent;
@@ -56,38 +44,37 @@ function writeToMercury(rows) {
   httpForEntry.setRequestHeader("x-csrf-token", token);
   httpForEntry.send(body);
 
-  var statusCodes = httpForEntry.responseText.match(RegExp('^HTTP/1\.1 (...)', 'gim')),
-      errorMessages = httpForEntry.responseText.match(RegExp('"message":{.*?}', 'gim')),
-      errorCount = 0;
-  for (var i = 0; i < statusCodes.length; i++) {
-    if (Math.floor(statusCodes[i].split(' ')[1] / 100) !== 2) {
-      errorCount += 1;
+  try {
+    var statusCodes = httpForEntry.responseText.match(RegExp('^HTTP/1\.1 (...)', 'gim')),
+        errorMessages = httpForEntry.responseText.match(RegExp('"message":{.*?}', 'gim')),
+        errorCount = 0;
+    for (var i = 0; i < statusCodes.length; i++) {
+      if (Math.floor(statusCodes[i].split(' ')[1] / 100) !== 2) {
+        errorCount += 1;
+      }
     }
-  }
-  if (Math.floor(httpForEntry.status / 100) === 2) {
-    if (errorCount === 0) {
-      alert('Import complete, will reload timesheet application to reflect changes');
-      window.location = 'https://mercury-pg1.ey.net:44365/sap/bc/ui5_ui5/sap/zhcm_ts_cre/index.html?sap-client=200&sap-language=EN';
+    if (Math.floor(httpForEntry.status / 100) === 2) {
+      if (errorCount === 0) {
+        alert('Import complete, will reload timesheet application to reflect changes');
+        window.location = 'https://mercury-pg1.ey.net:44365/sap/bc/ui5_ui5/sap/zhcm_ts_cre/index.html?sap-client=200&sap-language=EN';
+      } else {
+        alert('At least ' + errorCount + ' entries failed. Please verify engagement codes and in case the error persists contact Oliver Wienand.\n\nErrors: ' + errorMessages);
+      }
     } else {
-      alert('At least ' + errorCount + ' entries failed. Please verify engagement codes and in case the error persists contact Oliver Wienand.\n\nErrors: ' + errorMessages);
+      alert('Error during transfer! Please verify engagement codes and in case the error persists contact Oliver Wienand.');
     }
-  } else {
-    alert('Error during transfer! Please verify engagement codes and in case the error persists contact Oliver Wienand.');
+  } catch (e) {
+    alert('Error reading response from Mercury!\n\nError stack:\n' + e.stack + '\n\nResponse body:\n' + httpForEntry.responseText +
+        '\n\nClipboard data:\n' + window.clipboardData.getData('Text'));
   }
 }
 
 function importToMercury() {
-  /*
-   if (typeof(window.clipboardData) === 'undefined') {
-   var myFirebaseRef = new Firebase("https://gte-wizard.firebaseio.com");
-   myFirebaseRef.authWithOAuthPopup("google", function (error, authData) {
-   myFirebaseRef.child(authData.auth.uid).once("value", function (rows) {
-   writeToMercury(rows.val());
-   myFirebaseRef.child(authData.auth.uid).remove();
-   });
-   });
-   } else */
-  {
+  console.log(bURL, e);
+  if (bURL && e && (e.origin === bURL)) {
+    writeToMercury(e.data.rows)
+  }
+  else {
     if (!detectIE()) {
       alert('Importing data to Mercury only works in Internet Explorer. Recording of times in Timesheet Plus can happen in any browser.');
       return
@@ -104,4 +91,4 @@ function importToMercury() {
   }
 }
 
-getScript('https://cdn.firebase.com/js/client/2.2.4/firebase.js', importToMercury);
+importToMercury();

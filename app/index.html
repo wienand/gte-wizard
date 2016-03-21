@@ -25,7 +25,20 @@
 </head>
 <body ng-app="gteApp">
 
-<div ng-controller="TimesheetCtrl" class="container-fluid">
+<div ng-controller="TimesheetCtrl" class="container-fluid ng-cloak">
+  <div class="row" ng-show="onTopOfMercury && detectIE" style="margin-top: -20px; background-color: red; margin-bottom: 45px">
+    <div style="text-align: center">
+      <h1>Due to current bugs in IE11, please use export button in timesheet application and then the import bookmarklet or use another browser, like Chrome from
+      the <a href="https://appstore.ey.net/">EY AppStore</a>.</h1>
+    </div>
+  </div>
+  <div class="row" ng-show="onTopOfMercury" style="margin-top: -20px; background-color: #ffe600">
+    <div style="text-align: center">
+      <button ng-click="importToMercury(rowsForGTE)" style="width: 35%; margin-right: 15%; margin-top:15px; margin-bottom: 15px" class="btn btn-primary">Transfer hours to Mercury
+      </button>
+      <button ng-click="printTimesheet()" style="width: 35%" class="btn btn-primary">Print timesheet as currently recorded in Mercury</button>
+    </div>
+  </div>
   <div class="row">
     <table class="table table-bordered table-striped">
       <thead>
@@ -122,7 +135,8 @@
     <div style="text-align: center">
       <button ng-click="deleteAllRows(rowsForGTE)" style="width: 20%; margin-right: 5%" class="btn btn-danger">Delete all rows</button>
       <button ng-click="addRow()" style="width: 20%; margin-right: 5%" class="btn btn-primary">Add row</button>
-      <span style="width: 20%; margin-right: 5%">
+      <button ng-hide="detectIE" ng-click="showHelp = !showHelp" style="width: 20%; margin-right: 5%" class="btn btn-primary">Instructions</button>
+      <span ng-show="detectIE" style="width: 20%; margin-right: 5%">
         <span ng-click="refMomentForExport.add(-1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-left"></i></span>
         <button ui-zeroclip zeroclip-text="{{jsonForMercury(rowsForGTE, refMomentForExport)}}" ng-click="exportForMercury()" id="mercury"
                 class="btn btn-primary">
@@ -158,13 +172,28 @@
         </tr>
       </table>
     </div>
-    <div class="col-md-12" style="border-top: 5px groove;margin-top:10px">
+    <div class="col-md-12" style="border-top: 5px groove;margin-top:10px" ng-show="detectIE">
       <div style="margin-top:15px">
         Please right click on the following button within Internet Explorer and select "Add to favorites ..." to install the bookmarklet.
         Otherwise you can also just drag it to your favorites bars.
         <a class="btn btn-warning btn-large"
            href="javascript:var r = new XMLHttpRequest();r.open('GET', 'https://gte-wizard.firebaseio.com/code.json', false);r.send();eval(JSON.parse(r.responseText));">
           Import to Mercury
+        </a>
+        <br>
+        Please note that printing of timesheets and easier import is available if you start this application in another browser, e.g. Chrome,
+        which you can download from the <a href="https://appstore.ey.net/">EY AppStore</a>.
+      </div>
+    </div>
+  </div>
+  <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="showHelp">
+    <div class="col-md-12">
+      <div style="margin-top:15px">
+        Please right click on the following button within Internet Explorer and select "Add to favorites ..." to install the bookmarklet.
+        Otherwise you can also just drag it to your favorites bars.
+        <a class="btn btn-warning btn-large"
+           href="javascript:var bURL = 'https://localhost:9050', frm = document.createElement('iframe');frm.src = bURL;document.body.appendChild(frm);window.addEventListener('message', function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}});">
+          Activate Timesheet Plus
         </a>
       </div>
     </div>
