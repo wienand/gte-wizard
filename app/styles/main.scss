@@ -90,3 +90,16 @@ body {
     border-bottom: 0;
   }
 }
+
+  .print-cell {
+    padding: 0em !important;
+    margin: 0 !important;
+    vertical-align: middle !important;
+  }
+
+@media print {
+   table { font-size: 70% !important;}
+  .no-print, .no-print * {
+    display : none !important;
+  }
+}

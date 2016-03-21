@@ -1,0 +1,140 @@
+<!doctype html>
+<!--suppress HtmlFormInputWithoutLabel -->
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <title>Timesheets Plus</title>
+  <meta name="description" content="Print your timesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <!-- favicon.ico from http://findicons.com/icon/444035/full_time?id=444149
+       Original author: Patricia Clausnitzer
+       License: Creative Commons Attribution (by) -->
+  <!-- build:css(.) styles/vendor.css -->
+  <!-- bower:css -->
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css(.tmp) styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild -->
+  <style type="text/css">
+    input.ng-invalid {
+      background-color : #FA787E;
+    }
+  </style>
+</head>
+<body ng-app="gteApp">
+
+<div ng-controller="ExportTableCtrl" class="container-fluid">
+  <div class="row">
+    <table class="table table-bordered table-striped">
+      <thead>
+      <tr class="info">
+        <td class="print-cell" colspan="{{6 + days.length}}" style="text-align:center">Data was received from Mercury on {{requestDate.format('DD.MM.YYYY')}}
+                                                                                       at {{requestDate.format('HH:mm')}}
+        </td>
+      </tr>
+      <tr class="info">
+        <th class="print-cell" colspan="3">Engagement<br>&nbsp;&nbsp;&nbsp;Activity</th>
+        <th class="print-cell">Description</th>
+        <th class="print-cell" style="text-align:center">Loc<br>Role</th>
+        <th class="print-cell" style="text-align:center" ng-repeat="day in days">{{day.format('ddd')}}<br>
+          <small>{{day.format('DD.MM.')}}</small>
+        </th>
+        <th class="print-cell" style="text-align: center">Total</th>
+      </tr>
+      </thead>
+      <form>
+        <tbody>
+        <tr ng-repeat="row in tableData">
+          <td style="white-space:nowrap;padding:0;margin:0;vertical-align:middle;text-align:center">
+            <i ng-show="row.plain.STATUS['d:FieldValue'] === 'DONE'" class="glyphicon glyphicon-ok"></i>
+            <i ng-hide="row.plain.STATUS['d:FieldValue'] === 'DONE'" class="glyphicon glyphicon-warning-sign"></i>
+          </td>
+          <td class="print-cell" style="white-space:nowrap">
+            <span ng-hide="(row.plain.POSID['d:FieldValue'] === tableData[$index - 1].plain.POSID['d:FieldValue']) && (!row.plain.AWART || (row.plain.AWART['d:FieldValueText'] === tableData[$index - 1].plain.AWART['d:FieldValueText']))">
+              {{row.plain.EngagementCode}}<br>&nbsp;&nbsp;&nbsp;{{row.plain.ActivityCode}}<span ng-show="row.plain.AWART">({{row.plain.AWART['d:FieldValueText']}})</span>
+            </span>
+          </td>
+          <td class="print-cell" style="white-space:nowrap">
+            <span ng-hide="(row.plain.POSID['d:FieldValue'] === tableData[$index - 1].plain.POSID['d:FieldValue']) && (!row.plain.AWART || (row.plain.AWART['d:FieldValueText'] === tableData[$index - 1].plain.AWART['d:FieldValueText']))">
+              {{row.plain.Engagement}}<br>&nbsp;&nbsp;&nbsp;{{row.plain.Activity}}
+            </span>
+          </td>
+          <td class="print-cell" style="">{{row.plain.NOTES['d:FieldValueText']}}</td>
+          <td class="print-cell" style="text-align:center;white-space:nowrap">{{row.plain.ZZYLOC['d:FieldValue']}}<br>{{row.plain.ZZYROLE['d:FieldValue']}}</td>
+          <td class="print-cell" ng-repeat="day in row.days track by $index" style="text-align:center;white-space:nowrap">{{day.TIME['d:FieldValue'] | number:1}}</td>
+          <td class="print-cell" style="text-align:center;white-space:nowrap">
+            {{row.total | number:1}}
+          </td>
+        </tr>
+        </tbody>
+      </form>
+      <tfoot>
+      <tr class="info" ng-repeat="(type, total) in aggregateByType(tableData)">
+        <th class="print-cell" colspan="5" style="text-align: right">
+          {{type}}
+        </th>
+        <th class="print-cell" ng-repeat="day in days" style="text-align:center">{{getTotalFor(tableData, day, days, type) | number:1}}</th>
+        <th class="print-cell" style="text-align:center">{{total | number:1}}</th>
+      </tr>
+      <tr class="info" style="border-top-style: double">
+        <th class="print-cell" colspan="5">
+          All engagement types
+        </th>
+        <th class="print-cell" ng-repeat="day in days" style="text-align:center">{{getTotalFor(tableData, day, days) | number:1}}</th>
+        <th class="print-cell" style="text-align:center">{{getTotal(tableData) | number:1}}</th>
+      </tr>
+      </tfoot>
+    </table>
+    <div>
+      <i class="glyphicon glyphicon-ok"></i>
+      Times are submitted
+      <i class="glyphicon glyphicon-warning-sign"></i>
+      Times not submitted
+    </div>
+    <div style="text-align: center" class="no-print">
+      <button onclick="window.print()" style="width: 100%; margin-right: 5%" class="btn btn-success">Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- build:js(.) scripts/oldieshim.js -->
+<!--[if lt IE 9]>
+<script src="bower_components/es5-shim/es5-shim.js"></script>
+<script src="bower_components/json3/lib/json3.js"></script>
+<![endif]-->
+<!-- endbuild -->
+
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/carousel.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/collapse.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/dropdown.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tab.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/transition.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/scrollspy.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
+<script src="bower_components/moment/moment.js"></script>
+<!-- endbower -->
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/moment/min/moment.min.js"></script>
+<script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
+<script src="bower_components/angular-zeroclipboard.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/ui-bootstrap-tpls-0.9.0.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/controllerExport.js"></script>
+<!-- endbuild -->
+
+</body>
+</html>
