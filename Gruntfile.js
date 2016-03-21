@@ -9,6 +9,8 @@
 
 module.exports = function (grunt) {
 
+  var serveStatic = require('serve-static');
+
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
 
@@ -66,9 +68,9 @@ module.exports = function (grunt) {
     // The actual grunt server settings
     connect: {
       options: {
-          protocol  : 'https',
-          key       : grunt.file.read('key.pem').toString(),
-          cert      : grunt.file.read('cert.pem').toString(),
+        protocol  : 'https',
+        key       : grunt.file.read('key.pem').toString(),
+        cert      : grunt.file.read('cert.pem').toString(),
         port: 9050,
         // Change this to '0.0.0.0' to access the server from outside.
         hostname: 'localhost',
@@ -79,12 +81,19 @@ module.exports = function (grunt) {
           open: true,
           middleware: function (connect) {
             return [
-              connect.static('.tmp'),
+              function(req, res, next) {
+                  res.setHeader('Access-Control-Allow-Origin', '*');
+                  res.setHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+                  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+                  return next();
+                },
+              serveStatic('.tmp'),
               connect().use(
                 '/bower_components',
-                connect.static('./bower_components')
+                serveStatic('./bower_components')
               ),
-              connect.static(appConfig.app)
+              serveStatic(appConfig.app)
             ];
           }
         }
@@ -218,7 +227,8 @@ module.exports = function (grunt) {
           '<%= yeoman.dist %>/scripts/{,*/}*.js',
           '<%= yeoman.dist %>/styles/{,*/}*.css',
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-          '<%= yeoman.dist %>/styles/fonts/*'
+          '<%= yeoman.dist %>/styles/fonts/*',
+          '!<%= yeoman.dist %>/scripts/*Mercury*.js'
         ]
       }
     },
@@ -351,7 +361,8 @@ module.exports = function (grunt) {
             '*.html',
             'views/{,*/}*.html',
             'images/{,*/}*.{webp}',
-            'fonts/*'
+            'fonts/*',
+            'scripts/*Mercury*.js'
           ]
         }, {
           expand: true,
