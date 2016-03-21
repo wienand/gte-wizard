@@ -279,6 +279,11 @@
         $scope.onTopOfMercury = $window.self !== $window.top;
         $scope.originOfMercury = $window.document.referrer.split('/')[0] + '//' + $window.document.referrer.split('/')[2];
         $scope.originOfMyself = $window.location.origin;
+        $scope.noHTTPS = false:
+        if ($window.location.protocol === 'http:') {
+          $scope.originOfMyself = 'https://defravmfoi0d51c.ey.net';
+          $scope.noHTTPS = true;
+        }
         $scope.printTimesheet = function () {
           $http.get('scripts/exportFromMercury.js').then(function (response) {
             $window.parent.postMessage({f: '(function(event) {' + response.data.replace('http://localhost:9050', $window.location.origin) + '})'}, $scope.originOfMercury)

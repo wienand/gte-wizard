@@ -190,18 +190,20 @@
            ng-href="javascript:var r = new XMLHttpRequest(); r.open('GET', '{{originOfMyself}}/scripts/importToMercury.js', false); r.send(); eval(r.responseText);">
           Import to Mercury
         </a>
-        <a class="btn btn-warning btn-large"
+        <a class="btn btn-warning btn-large" ng-hide="noHTTPS"
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL+'/export.html'; document.body.appendChild(frm);window.addEventListener('message', f);">
           Print timesheet from Mercury
         </a>
-        <a class="btn btn-warning btn-large" ng-hide="detectIE"
+        <a class="btn btn-warning btn-large" ng-hide="detectIE || noHTTPS"
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL; document.body.appendChild(frm); window.addEventListener('message', f);">
           Activate Timesheet Plus
         </a>
         <br>
         Please note that printing of timesheets and easier import is only available (aka Activate Timesheet Plus bookmarklet) if you start this application in another browser, e.g.
-        Chrome,
-        which you can download from the <a href="https://appstore.ey.net/">EY AppStore</a>.
+        Chrome, which you can download from the <a href="https://appstore.ey.net/">EY AppStore</a>.
+        <br>
+        <strong>You are using the tool from an deprecated HTTP only place. Please consider changing to the "official" internal version at
+          <a ng-href="{{originOfMyself}}">{{originOfMyself}}</a>. Depending on your browser it will support a nice interface and timesheet printing.</strong>
       </div>
     </div>
   </div>
