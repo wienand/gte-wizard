@@ -28,7 +28,6 @@ window.addEventListener('message', function (event) {
     r.open('GET', 'https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/SRA002_TIMESHEET_SRV/TimeDataList?$filter=StartDate%20eq%20%27' + result.minDate
         + '%27%20and%20EndDate%20eq%20%27' + result.maxDate + '%27&sap-client=200', false);
     r.send();
-    console.log(result, r);
     result.responseText = r.responseText;
     exportTimesheet.postMessage(result, baseUrl);
   }

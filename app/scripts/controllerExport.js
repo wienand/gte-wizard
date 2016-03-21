@@ -149,17 +149,13 @@
               while (!left.days[i] && !right.days[i] && i < $scope.days.length) {
                 i += 1;
               }
-              console.log(left, right);
-              console.log(left.days[i], right.days[i]);
               if ((i < $scope.days.length) && left.days[i]) {
                 return -1;
               }
             }
             return 1;
           };
-          console.log($scope.tableData);
           $scope.tableData.sort(comparatorForSort);
-          console.log($scope.tableData);
         };
 
         $window.addEventListener('message', receiveMessage);

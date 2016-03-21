@@ -312,7 +312,6 @@
               alert('Nothing to import!')
               return;
             }
-            console.log(rows);
             $http.get('scripts/importToMercury.js').then(function (response) {
               $window.parent.postMessage({
                 f   : '(function() {' + response.data.replace('http://localhost:9050', $window.location.origin) + '})',

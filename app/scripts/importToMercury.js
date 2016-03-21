@@ -70,7 +70,6 @@ function writeToMercury(rows) {
 }
 
 function importToMercury() {
-  console.log(bURL, e);
   if (bURL && e && (e.origin === bURL)) {
     writeToMercury(e.data.rows)
   }
