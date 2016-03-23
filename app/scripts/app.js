@@ -13,6 +13,39 @@ angular
     .config(function ($compileProvider) {
       $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|mailto|javascript):/);
     })
+    .directive('resizeInputToLength', [
+      function () {
+        return {
+          restrict: 'A',
+          scope   : {},
+          link    : function (scope, element) {
+            var input = $(element[0]),
+                friday = $('#thTotalColumn'),
+                checkWidthAndEnlargeInCase = function () {
+                  if (!input.hasClass('enlarge-input') && (input.width() / input.val().length < 7.25)) {
+                    input.addClass('enlarge-input');
+                    input.width((friday.position().left - input.position().left - 8) + 'px');
+                  }
+                },
+                handlerFocusIn = function (event) {
+                  checkWidthAndEnlargeInCase();
+                },
+                handlerFocusOut = function (event) {
+                  input.removeClass('enlarge-input');
+                  input[0].style.width = '100%';
+                },
+                handlerInput = function (event) {
+                  if (input.focus) {
+                    checkWidthAndEnlargeInCase();
+                  }
+                };
+            input.on('focusin', handlerFocusIn);
+            input.on('focusout', handlerFocusOut);
+            input.on('input', handlerInput);
+          }
+        };
+      }
+    ])
     .directive('dropZone', [
       function () {
         return {
