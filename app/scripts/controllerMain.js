@@ -12,6 +12,9 @@
               E: 'External projects',
               I: 'Internal projects'
             };
+        $scope.state = {
+          saveInProgress: false
+        };
         $scope.callbackToggleFactory = function (row) {
           return function (stopped, oldTime, newTime) {
             var weekday = weekdays[(new Date()).getDay()];
@@ -175,6 +178,16 @@
             $scope.$apply();
           }
         };
+        var updateTypeaheadFromLocalStorage = function (calledInScope) {
+          $scope.typeaheadLastUsed = JSON.parse($window.localStorage.typeahead || null) || $scope.typeaheadLastUsed;
+          _.forEach($scope.typeaheadLastUsed, function (value, key, list) {
+            $scope.typeahead[key] = _.keys(list[key]);
+            $scope.typeahead[key].sort();
+          });
+          if (!calledInScope) {
+            $scope.$apply();
+          }
+        };
         var createTypeAheadLists = function () {
           $scope.typeahead = $scope.typeahead || {};
           _.forEach($scope.typeaheadLastUsed, function (value, key, list) {
@@ -222,12 +235,7 @@
             updateRowsFromLocalStorage();
           }
           if (e.key === 'typeahead') {
-            $scope.typeaheadLastUsed = JSON.parse($window.localStorage.typeahead || null) || $scope.typeaheadLastUsed;
-            _.forEach($scope.typeaheadLastUsed, function (value, key, list) {
-              $scope.typeahead[key] = _.keys(list[key]);
-              $scope.typeahead[key].sort();
-            });
-            $scope.$apply();
+            updateTypeaheadFromLocalStorage();
           }
         }, false);
 
@@ -361,8 +369,109 @@
           };
           $window.parent.postMessage({f: '(' + close + ')'}, $scope.originOfMercury);
         };
-        
+
         var ua = $window.navigator.userAgent;
         $scope.detectIE = !!(ua.indexOf('MSIE ') > 0 || ua.indexOf('Trident/') > 0 || ua.indexOf('Edge/') > 0);
+
+        $scope.tagOfCurrentSheet = localStorage.timesheetTagOfCurrentSheet;
+        $scope.tagOfSheet = $scope.tagOfCurrentSheet;
+        var generateTagsForSheetSelect = function () {
+          $scope.sheetStoreTags = _.keys(JSON.parse(localStorage.timesheetSheetStore || '{}')).sort();
+          $scope.sheetStoreTags.unshift('--------------------');
+          $scope.sheetStoreTags.unshift('Delete sheet');
+          $scope.sheetStoreTags.unshift('Save as new ...');
+        };
+        generateTagsForSheetSelect();
+
+        $scope.tagOfSheetSelected = function (tag, prevTag) {
+          var sheetStore = JSON.parse(localStorage.timesheetSheetStore || '{}');
+          switch (tag) {
+            case 'Save as new ...':
+            {
+              $scope.state.saveInProgress = true;
+              $scope.tagOfSheet = $scope.tagOfCurrentSheet;
+              break;
+            }
+            case 'Delete sheet':
+            {
+              delete sheetStore[prevTag];
+              localStorage.timesheetSheetStore = JSON.stringify(sheetStore);
+              generateTagsForSheetSelect();
+              $scope.tagOfCurrentSheet = null;
+              break;
+            }
+            case '--------------------':
+            {
+              $scope.tagOfSheet = $scope.tagOfCurrentSheet;
+              break;
+            }
+            default:
+            {
+              switchToSheet(sheetStore, tag, prevTag);
+            }
+          }
+        };
+        var switchToSheet = function (sheetStore, tag, prevTag) {
+          if (sheetStore.hasOwnProperty(tag)) {
+            if (prevTag !== 'Delete sheet') {
+              if ($scope.tagOfCurrentSheet) {
+                $scope.saveSheet($scope.tagOfCurrentSheet, true);
+              } else {
+                $scope.saveSheet('Unnamed sheet from ' + moment().format('YYYY-MM-DD HH:mm:ss'), true);
+              }
+            }
+            localStorage.rowsForGTE = sheetStore[tag].rowsForGTE;
+            localStorage.typeahead = sheetStore[tag].typeahead;
+            localStorage.timesheetTagOfCurrentSheet = tag;
+            $scope.tagOfCurrentSheet = tag;
+            $scope.tagOfSheet = tag;
+            localStorage.timesheetTagOfCurrentSheet = tag;
+            updateRowsFromLocalStorage(true);
+            updateTypeaheadFromLocalStorage(true);
+          }
+        };
+        $scope.saveSheet = function (tag, noUpdateUI) {
+          var sheetStore = JSON.parse(localStorage.timesheetSheetStore || '{}');
+          sheetStore[tag] = sheetStore[tag] || {};
+          sheetStore[tag].rowsForGTE = localStorage.rowsForGTE;
+          sheetStore[tag].typeahead = localStorage.typeahead;
+          localStorage.timesheetSheetStore = JSON.stringify(sheetStore);
+          if (!noUpdateUI) {
+            $scope.tagOfCurrentSheet = tag;
+            $scope.tagOfSheet = tag;
+            localStorage.timesheetTagOfCurrentSheet = tag;
+            generateTagsForSheetSelect();
+            $scope.state.saveInProgress = false;
+          }
+        };
+        $scope.importJson = function (data) {
+          data = JSON.parse(data);
+          var sheetStore = JSON.parse(localStorage.timesheetSheetStore || '{}'),
+              tag = data.timesheetTagOfCurrentSheet;
+          sheetStore[tag] = sheetStore[tag] || {};
+          sheetStore[tag].rowsForGTE = data.rowsForGTE;
+          sheetStore[tag].typeahead = data.typeahead;
+          localStorage.timesheetSheetStore = JSON.stringify(sheetStore);
+          generateTagsForSheetSelect();
+          if (tag === $scope.tagOfSheet) {
+            switchToSheet(sheetStore, tag, $scope.tagOfSheet);
+          } else {
+            switchToSheet(sheetStore, tag, 'Delete sheet');
+          }
+        };
+        $scope.downloadJson = function () {
+          var data = JSON.stringify({
+                rowsForGTE                : JSON.stringify($scope.rowsForGTE),
+                typeahead                 : localStorage.typeahead,
+                timesheetTagOfCurrentSheet: $scope.tagOfCurrentSheet || ('Exported on ' + moment().format('YYYY-MM-DD HH:mm:ss'))
+              }),
+              link = document.createElement('a');
+          link.download = 'Timesheet Plus - Sheet ' + $scope.tagOfCurrentSheet + ' - ' + moment().format('YYYY-MM-DD HH_mm_ss') + '.json';
+          link.href = 'data:application/octet-stream,' + encodeURIComponent(data);
+          link.click();
+          if ($scope.detectIE) {
+            $window.navigator.msSaveBlob(new Blob([data], {type: "application/json"}), link.download);
+          }
+        };
       });
 })();
