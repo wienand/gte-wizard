@@ -44,7 +44,10 @@
         $scope.aggregateByType = function (rows) {
           var totalByType = {};
           _.forEach(rows, function (row) {
-            var chargeType = chargeTypes[row.engagement.charAt(0)] || row.engagement.charAt(0);
+            var chargeType = 'Unknown';
+            if (row.engagement) {
+              chargeType = chargeTypes[row.engagement.charAt(0)] || row.engagement.charAt(0);
+            }
             totalByType[chargeType] = totalByType[chargeType] || 0;
             totalByType[chargeType] += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
           });
