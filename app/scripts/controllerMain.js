@@ -273,8 +273,8 @@
                 }
                 entry.engagement = row.engagement.match(findEngagementRE)[3] + '-' + activity;
                 if (entry.engagement[0] !== 'X') {
-                dataForMercury.push(entry);
-              }
+                  dataForMercury.push(entry);
+                }
               }
             });
           });

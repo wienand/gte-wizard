@@ -153,9 +153,9 @@
       </tfoot>
     </table>
     <div style="text-align: center">
-      <button ng-click="deleteAllRows(rowsForGTE)" style="width: 20%; margin-right: 5%" class="btn btn-danger">Delete all rows</button>
-      <button ng-click="addRow()" style="width: 20%; margin-right: 5%" class="btn btn-primary">Add row</button>
-      <span style="width: 20%; margin-right: 5%">
+      <button ng-click="deleteAllRows(rowsForGTE)" style="width: 18%; margin-right: 3%" class="btn btn-danger">Delete all rows</button>
+      <button ng-click="addRow()" style="width: 18%; margin-right: 3%" class="btn btn-primary">Add row</button>
+      <span style="width: 18%; margin-right: 3%">
         <span ng-click="refMomentForExport.add(-1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-left"></i></span>
         <button ui-zeroclip zeroclip-text="{{jsonForMercury(rowsForGTE, refMomentForExport)}}" ng-click="exportForMercury()" id="mercury"
                 class="btn btn-primary">
@@ -163,7 +163,7 @@
         </button>
         <span ng-click="refMomentForExport.add(1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-right"></i></span>
       </span>
-      <button ng-click="clearTimes(rowsForGTE)" style="width: 20%" class="btn btn-warning">Clear times</button>
+      <button ng-click="clearTimes(rowsForGTE)" style="width: 18%" class="btn btn-warning">Clear times</button>
     </div>
   </div>
   <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries">
