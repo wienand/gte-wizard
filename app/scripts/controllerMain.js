@@ -8,9 +8,9 @@
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
             chargeTypes = {
               A: 'Absences',
-              C: 'Cost centers',
-              E: 'External projects',
-              I: 'Internal projects'
+              C: 'Cost center',
+              E: 'External',
+              I: 'Internal'
             };
         $scope.state = {
           saveInProgress: false
