@@ -71,7 +71,7 @@
         <th style="width: 5.5em">Delta</th>
       </tr>
       </thead>
-      <form>
+      <form name="form" novalidate>
         <tbody>
         <tr ng-repeat="row in rowsForGTE">
           <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1">
@@ -82,10 +82,27 @@
                        start-time="row._startTime" running="row._running">
             </stopwatch>
           </td>
-          <td><input type="text" ng-model="row.engagement" typeahead="engagement for engagement in typeahead.engagement | filter:$viewValue | limitTo:8" style="width: 100%"></td>
-          <td><input type="text" ng-model="row.activity" typeahead="activity for activity in typeahead.activity | filter:$viewValue | limitTo:8" style="width: 100%"></td>
+          <td>
+            <ng-form name="engagementForm">
+              <input name="engagement" type="text" ng-model="row.engagement" ng-pattern="/^(.*(\s|[\(]))?\w-\w{8}((\s|[\)]).*)?$/" required
+                     typeahead="engagement for engagement in typeahead.engagement | filter:$viewValue | limitTo:8" style="width: 100%">
+              <span ng-show="engagementForm.engagement.$error.pattern && (engagementForm.engagement.$viewValue.length > 12)">
+                <b>X-XXXXXXXX - Description</b>
+              </span>
+            </ng-form>
+          </td>
+          <td>
+            <ng-form name="activityForm">
+              <input name="activity" type="text" ng-model="row.activity" ng-pattern="/^\w\w\w\w(:\w\w\w\w)?( - .*)?$/" required
+                     typeahead="activity for activity in typeahead.activity | filter:$viewValue | limitTo:8" style="width: 100%">
+              <span ng-show="activityForm.activity.$error.pattern && (activityForm.activity.$viewValue.length > 6)">
+                <b>XXXX - Description</b> or <b>YYYY:XXXX - Description</b>,<br>eg. with YYYY = PATT or ACTT
+              </span>
+            </ng-form>
+          </td>
           <td tooltip-append-to-body="1" tooltip="{{row.description}}" tooltip-placement="left">
-            <input resize-input-to-length type="text" ng-model="row.description" typeahead="description for description in typeahead.description | filter:$viewValue | limitTo:8" style="width: 100%">
+            <input resize-input-to-length type="text" ng-model="row.description"
+                   typeahead="description for description in typeahead.description | filter:$viewValue | limitTo:8" style="width: 100%">
           </td>
           <td><input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
           <td><input type="text" ng-model="row.location2" typeahead="location2 for location2 in typeahead.location2 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
@@ -125,7 +142,9 @@
             <span ng-hide="state.saveInProgress">
               Select sheet
               <select ng-options="x for x in sheetStoreTags" ng-model="tagOfSheet" ng-change="tagOfSheetSelected(tagOfSheet, '{{tagOfSheet}}')"></select>
-              <span ng-click="downloadJson()" tooltip="To import exported sheets, just drag and drop them on this table cell"><i class="glyphicon glyphicon-cloud-download"></i></span>
+              <span ng-click="downloadJson()" tooltip="To import exported sheets, just drag and drop them on this table cell">
+                <i class="glyphicon glyphicon-cloud-download"></i>
+              </span>
             </span>
             <span ng-show="state.saveInProgress">
               Name
