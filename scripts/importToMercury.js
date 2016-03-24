@@ -17,16 +17,19 @@ function writeToMercury(rows) {
       tail = ',"TimeEntryRelease":" "}\r\n--changeset_1463-1aa4-5014--\r\n\r\n';
   for (var i = 0; i < rows.length; i++) {
     var entry = {
-      WORKDATE     : rows[i].date,
-      CATSAMOUNT   : '' + rows[i].duration,
-      BEGUZ        : "",
-      ENDUZ        : "",
-      POSID        : rows[i].engagement,
-      ZZYROLE      : rows[i].role,
-      ZZYLOC       : rows[i].location,
-      LONGTEXT_DATA: rows[i].description,
-      LONGTEXT     : "X"
+      WORKDATE  : rows[i].date,
+      CATSAMOUNT: '' + rows[i].duration,
+      BEGUZ     : "",
+      ENDUZ     : "",
+      POSID     : rows[i].engagement,
+      ZZYROLE   : rows[i].role,
+      ZZYLOC    : rows[i].location,
+      LONGTEXT  : ' '
     };
+    if (rows[i].description) {
+      entry.LONGTEXT_DATA = rows[i].description;
+          entry.LONGTEXT = "X";
+    }
     if (rows[i].hasOwnProperty('type')) {
       entry.AWART = rows[i].type;
     }
