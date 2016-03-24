@@ -244,11 +244,15 @@
 
         $scope.refMomentForExport = moment();
         $scope.jsonForMercury = function (rows, refMoment) {
-          var dataForMercury = [];
+          var dataForMercury = [],
+              findEngagementRE = /^(.*(\s|[\(]))?(\w-\w{8})((\s|[\)]).*)?$/;
           refMoment = refMoment || moment();
 
           _.forEach(rows, function (row) {
             _.forEach(weekdaysForGTE, function (weekday) {
+              if (!row.engagement || !row.activity) {
+                return;
+              }
               var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
                   weekdayOfEntry = weekdaysForGTE.indexOf(weekday),
                   dateOfEntry = moment(refMoment.startOf('week')).add(weekdayOfEntry - 1, 'days').format('YYYYMMDD');
@@ -267,8 +271,10 @@
                   entry.type = activity[0];
                   activity = activity[1];
                 }
-                entry.engagement = row.engagement.split(' - ')[0] + '-' + activity;
+                entry.engagement = row.engagement.match(findEngagementRE)[3] + '-' + activity;
+                if (entry.engagement[0] !== 'X') {
                 dataForMercury.push(entry);
+              }
               }
             });
           });
