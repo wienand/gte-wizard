@@ -23,23 +23,29 @@
           };
         };
         $scope.getTotalFor = function (rows, field) {
-          return _.reduce(_.pluck(rows, field), function (sum, el) {
+          return _.reduce(_.pluck(_.filter(rows, function (row) {
+            return row.engagement[0] !== 'X';
+          }), field), function (sum, el) {
             return sum + el;
           }, 0);
         };
         $scope.getTotalDiff = function (rows) {
           var totalDiff = 0;
           _.forEach(rows, function (row) {
-            totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime;
+            if (row.engagement[0] !== 'X') {
+              totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime;
+            }
           });
           return totalDiff;
         };
         $scope.getTotal = function (rows) {
-          var totalDiff = 0;
+          var total = 0;
           _.forEach(rows, function (row) {
-            totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+            if (row.engagement[0] !== 'X') {
+              total += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+            }
           });
-          return totalDiff;
+          return total;
         };
         $scope.aggregateByType = function (rows) {
           var totalByType = {};
