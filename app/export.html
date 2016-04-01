@@ -31,8 +31,9 @@
     <table class="table table-bordered table-striped">
       <thead>
       <tr class="info">
-        <td class="print-cell" colspan="{{6 + days.length}}" style="text-align:center">Data was received from Mercury on {{requestDate.format('DD.MM.YYYY')}}
-                                                                                       at {{requestDate.format('HH:mm')}}
+        <td class="print-cell" colspan="{{6 + days.length}}" style="text-align:center">
+          Data was received from Mercury on {{requestDate.format('DD.MM.YYYY')}} at {{requestDate.format('HH:mm')}}
+          <span ng-show="delegatorID">[{{timesheetOf}} ({{delegatorID}})]</span>
         </td>
       </tr>
       <tr class="info">

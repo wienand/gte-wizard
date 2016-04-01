@@ -80,6 +80,8 @@
               entryObjects = {}, entryObject,
               tableFormat = {}, tableAggregated = {}, minDate = '99991231', maxDate = '00000000';
 
+          $scope.delegatorID = event.data.delegatorID;
+          $scope.timesheetOf = event.data.timesheetOf;
           for (var i = 0; i < entries.length; i++) {
             var entry = entries[i],
                 tmp = {},
