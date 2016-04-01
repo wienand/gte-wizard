@@ -8,10 +8,14 @@ var stopSending = false,
 
 function getMercuryData() {
   var
+      delegatorID = hcm.emp.reuse.util.Delegator.parent.oConnectionManager.getModel().getHeaders().DelegatorID,
+      baseTimesheetURL = 'https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/SRA002_TIMESHEET_SRV/',
       r = new XMLHttpRequest(),
       result = {
         msg        : 'Timesheet data',
-        requestDate: new Date()
+        requestDate: new Date(),
+        delegatorID: delegatorID,
+        timesheetOf: hcm.emp.reuse.util.Delegator.oPageTitle
       };
 
   if (document.location.hash.indexOf('#/detail') === 0) {
@@ -28,8 +32,13 @@ function getMercuryData() {
     monthName.setTime(monthName.getTime() - 1000 * 60 * monthName.getTimezoneOffset() - 1000 * 60 * 60 * 24);
     result.maxDate = monthName.toISOString().slice(0, 10).replace(/-/g, '');
   }
-  r.open('GET', 'https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/SRA002_TIMESHEET_SRV/TimeDataList?$filter=StartDate%20eq%20%27' + result.minDate
-      + '%27%20and%20EndDate%20eq%20%27' + result.maxDate + '%27&sap-client=200', false);
+  if (delegatorID) {
+    baseTimesheetURL = 'https://mercury-pg1.ey.net:44365/sap/opu/odata/FTTE/ENH_SRA002_TIMESHEET_SRV/';
+  }
+  r.open('GET', baseTimesheetURL + 'TimeDataList?$filter=StartDate%20eq%20%27' + result.minDate + '%27%20and%20EndDate%20eq%20%27' + result.maxDate + '%27&sap-client=200', false);
+  if (delegatorID) {
+    r.setRequestHeader("DelegatorID", delegatorID);
+  }
   r.send();
   result.responseText = r.responseText;
   exportTimesheet.postMessage(result, baseUrl);

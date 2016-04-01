@@ -1,7 +1,7 @@
 /**
  * Used to import data to Mercury
  */
-/* global bURL, e */
+/* global bURL, e, hcm */
 
 function detectIE() {
   var ua = window.navigator.userAgent;
@@ -12,9 +12,14 @@ function detectIE() {
 }
 
 function writeToMercury(rows) {
-  var body = '--batch_cdc0-f6b6-fece--\r\n',
-      head = '\r\n--batch_cdc0-f6b6-fece\r\nContent-Type: multipart/mixed; boundary=changeset_1463-1aa4-5014\r\n\r\n\r\n--changeset_1463-1aa4-5014\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\n\r\nPOST TimeEntries HTTP/1.1\r\nAccept-Language: EN\r\nAccept: application/json\r\nContent-Type: application/json\r\n\r\n{"Counter":"","TimeEntryOperation":"C","TimeEntryDataFields":',
-      tail = ',"TimeEntryRelease":" "}\r\n--changeset_1463-1aa4-5014--\r\n\r\n';
+  var Z7 = function () {
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substr(1);
+  },
+      batch = 'batch_' + Z7() + '-' + Z7() + '-' + Z7(),
+      changeset = 'changeset_' + Z7() + '-' + Z7() + '-' + Z7(),
+      body = '--' + batch + '--\r\n',
+      head = '\r\n--' + batch + '\r\nContent-Type: multipart/mixed; boundary=' + changeset + '\r\n\r\n\r\n--' + changeset + '\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\n\r\nPOST TimeEntries HTTP/1.1\r\nAccept-Language: EN\r\nAccept: application/json\r\nContent-Type: application/json\r\n\r\n{"Counter":"","TimeEntryOperation":"C","TimeEntryDataFields":',
+      tail = ',"TimeEntryRelease":" "}\r\n--' + changeset + '--\r\n\r\n';
   for (var i = 0; i < rows.length; i++) {
     var entry = {
       WORKDATE  : rows[i].date,
@@ -28,23 +33,34 @@ function writeToMercury(rows) {
     };
     if (rows[i].description) {
       entry.LONGTEXT_DATA = rows[i].description;
-          entry.LONGTEXT = "X";
+      entry.LONGTEXT = "X";
     }
     if (rows[i].hasOwnProperty('type')) {
       entry.AWART = rows[i].type;
     }
     body = head + JSON.stringify(entry) + tail + body;
   }
-  var httpForToken = new XMLHttpRequest();
-  httpForToken.open("GET", "https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/SRA002_TIMESHEET_SRV/", false);
+  var httpForToken = new XMLHttpRequest(),
+      baseTimesheetURL = "https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/SRA002_TIMESHEET_SRV/",
+      delegatorID = hcm.emp.reuse.util.Delegator.parent.oConnectionManager.getModel().getHeaders().DelegatorID;
+  if (delegatorID) {
+    baseTimesheetURL = "https://mercury-pg1.ey.net:44365/sap/opu/odata/FTTE/ENH_SRA002_TIMESHEET_SRV/";
+  }
+  httpForToken.open("GET", baseTimesheetURL, false);
   httpForToken.setRequestHeader("Accept", "application/json");
   httpForToken.setRequestHeader("x-csrf-token", "Fetch");
+  if (delegatorID) {
+    httpForToken.setRequestHeader("DelegatorID", delegatorID);
+  }
   httpForToken.send("sap-client=200");
   var token = httpForToken.getResponseHeader('x-csrf-token'),
       httpForEntry = new XMLHttpRequest();
-  httpForEntry.open("POST", "https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/SRA002_TIMESHEET_SRV/$batch?sap-client=200", false);
-  httpForEntry.setRequestHeader("Content-Type", "multipart/mixed;boundary=batch_cdc0-f6b6-fece");
+  httpForEntry.open("POST", baseTimesheetURL + "$batch?sap-client=200", false);
+  httpForEntry.setRequestHeader("Content-Type", "multipart/mixed;boundary=" + batch);
   httpForEntry.setRequestHeader("x-csrf-token", token);
+  if (delegatorID) {
+    httpForEntry.setRequestHeader("DelegatorID", delegatorID);
+  }
   httpForEntry.send(body);
 
   try {
@@ -64,7 +80,7 @@ function writeToMercury(rows) {
         alert('At least ' + errorCount + ' entries failed. Please verify engagement codes and in case the error persists contact Oliver Wienand.\n\nErrors: ' + errorMessages);
       }
     } else {
-      alert('Error during transfer! Please verify engagement codes and in case the error persists contact Oliver Wienand.');
+      alert('Error during transfer! Please verify engagement codes and in case the error persists contact Oliver Wienand.\n\nResponse body:\n' + httpForEntry.responseText);
     }
   } catch (e) {
     alert('Error reading response from Mercury!\n\nError stack:\n' + e.stack + '\n\nResponse body:\n' + httpForEntry.responseText +
