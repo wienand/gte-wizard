@@ -67,7 +67,7 @@ var generateTimesheetExport = function () {
     if (calledInFrame.origin) {
       //noinspection JSUnresolvedVariable
       baseUrl = bURL;
-      exportTimesheet = window.frames[0];
+      exportTimesheet = window.frames[window.frames.length - 1];
       getMercuryData();
     }
   } catch (error) {
