@@ -55,13 +55,13 @@
         <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
         <th style="width: 5em">Loc</th>
         <th style="width: 5em">Role</th>
-        <th style="width: 5em">Sat</th>
-        <th style="width: 5em">Son</th>
-        <th style="width: 5em">Mon</th>
-        <th style="width: 5em">Tue</th>
-        <th style="width: 5em">Wed</th>
-        <th style="width: 5em">Thu</th>
-        <th style="width: 5em">Fri</th>
+        <th class="weekend" style="width: 5em" ng-hide="state.hideWeekend">Sat</th>
+        <th class="weekend" style="width: 5em" ng-hide="state.hideWeekend">Son</th>
+        <th class="weekday" style="width: 5em">Mon</th>
+        <th class="weekday" style="width: 5em">Tue</th>
+        <th class="weekday" style="width: 5em">Wed</th>
+        <th class="weekday" style="width: 5em">Thu</th>
+        <th class="weekday" style="width: 5em">Fri</th>
         <th style="width: 5em" id="thTotalColumn">
           Total
           <span ng-click="roundRows(rowsForGTE)" tooltip-placement="bottom" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
@@ -105,13 +105,13 @@
           </td>
           <td><input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
           <td><input type="text" ng-model="row.location2" typeahead="location2 for location2 in typeahead.location2 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.saturday" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.sunday" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.monday" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.tuesday" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.wednesday" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.thursday" style="width: 100%"></td>
-          <td><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
+          <td class="weekend" ng-hide="state.hideWeekend"><input type="number" step="0.1" ng-model="row.saturday" style="width: 100%"></td>
+          <td class="weekend" ng-hide="state.hideWeekend"><input type="number" step="0.1" ng-model="row.sunday" style="width: 100%"></td>
+          <td class="weekday"><input type="number" step="0.1" ng-model="row.monday" style="width: 100%"></td>
+          <td class="weekday"><input type="number" step="0.1" ng-model="row.tuesday" style="width: 100%"></td>
+          <td class="weekday"><input type="number" step="0.1" ng-model="row.wednesday" style="width: 100%"></td>
+          <td class="weekday"><input type="number" step="0.1" ng-model="row.thursday" style="width: 100%"></td>
+          <td class="weekday"><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
           <td style="text-align:center">
             {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}
             <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
@@ -157,15 +157,15 @@
             Setup & Instructions
           </button>
         </th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'monday') | number:1}}</th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'tuesday') | number:1}}</th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'wednesday') | number:1}}</th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
-        <th style="text-align:center">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
-        <th style="text-align:center">{{getTotal(rowsForGTE) | number:1}}</th>
-        <th style="text-align:center">{{getTotalDiff(rowsForGTE) | number:2}}</th>
+        <th style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
+        <th style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'monday') | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'tuesday') | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'wednesday') | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotal(rowsForGTE) | number:1}}</th>
+        <th style="text-align:center" class="weekday">{{getTotalDiff(rowsForGTE) | number:2}}</th>
       </tr>
       </tfoot>
     </table>

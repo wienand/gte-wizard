@@ -3,7 +3,7 @@
   /* global _, angular, console, moment, alert, confirm */
 
   angular.module('gteApp')
-      .controller('TimesheetCtrl', function ($window, $http, $timeout, $scope) {
+      .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
             chargeTypes = {
@@ -13,7 +13,8 @@
               I: 'Internal'
             };
         $scope.state = {
-          saveInProgress: false
+          saveInProgress: false,
+          hideWeekend: $location.search()['hideWeekend'] === '1'
         };
         $scope.callbackToggleFactory = function (row) {
           return function (stopped, oldTime, newTime) {
