@@ -231,6 +231,10 @@
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL; document.body.appendChild(frm); window.addEventListener('message', f);">
           Activate Timesheet Plus
         </a>
+        <a class="btn btn-warning btn-large" ng-hide="noHTTPS"
+           ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL+'/searchWBS.html'; document.body.appendChild(frm);window.addEventListener('message', f);">
+          WBS Search within Mercury
+        </a>
         <br>
         Please note that printing of timesheets and easier import is only available (aka Activate Timesheet Plus bookmarklet) if you start this application in another browser, e.g.
         Chrome, which you can download from the <a href="https://appstore.ey.net/">EY AppStore</a>.
@@ -285,6 +289,7 @@
 <script src="scripts/directiveStopWatch.js"></script>
 <script src="scripts/controllerMain.js"></script>
 <script src="scripts/controllerExport.js"></script>
+<script src="scripts/controllerSearchWBS.js"></script>
 <!-- endbuild -->
 
 </body>
