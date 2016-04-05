@@ -1,0 +1,82 @@
+<!doctype html>
+<!--suppress HtmlFormInputWithoutLabel -->
+<html class="no-js" style="height: 100%">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=9,10,11">
+  <meta charset="utf-8">
+  <title>Timesheets Plus</title>
+  <meta name="description" content="Print your timesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <!-- favicon.ico from http://findicons.com/icon/444035/full_time?id=444149
+       Original author: Patricia Clausnitzer
+       License: Creative Commons Attribution (by) -->
+  <!-- build:css(.) styles/vendor.css -->
+  <!-- bower:css -->
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css(.tmp) styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild -->
+  <style type="text/css">
+    input.ng-invalid {
+      background-color : #FA787E;
+    }
+  </style>
+</head>
+<body ng-app="gteApp" ng-controller="SearchCtrl" style="padding-top: 0; padding-bottom: 0; height: 100%" ng-mouseover="hoverIn()" ng-mouseleave="hoverOut()">
+<div ng-show="minimized" style="width: 100%; height: 100%;background-color: yellow;margin-top:-10px;margin-bottom:-10px"></div>
+<div ng-hide="minimized" style="margin-top: 10px">
+  <form ng-submit="search(searchText)">
+    <input type="text" ng-model="searchText" style="width: 100%">
+    <button type="reset" ng-click="closeOverlay()" style="width: 45%" class="btn btn-xs btn-danger">Close</button>
+    <button type="submit" style="width: 45%" class="pull-right btn btn-xs btn-success">Search</button>
+  </form>
+
+  <div ng-repeat="WBS in searchResult">
+    <button ng-show="WBS['d:FieldId'].length === 10" ng-click="search(WBS['d:FieldId'])" class="label label-primary">{{WBS['d:FieldValue']}}</button>
+    <button ng-hide="WBS['d:FieldId'].length === 10" ng-click="transferWBS(WBS)" class="label label-success">{{WBS['d:FieldValue']}}</button>
+  </div>
+</div>
+<!-- build:js(.) scripts/oldieshim.js -->
+<!--[if lt IE 9]>
+<script src="bower_components/es5-shim/es5-shim.js"></script>
+<script src="bower_components/json3/lib/json3.js"></script>
+<![endif]-->
+<!-- endbuild -->
+
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/carousel.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/collapse.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/dropdown.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tab.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/transition.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/scrollspy.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
+<script src="bower_components/moment/moment.js"></script>
+<!-- endbower -->
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/moment/min/moment.min.js"></script>
+<script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
+<script src="bower_components/angular-zeroclipboard.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/ui-bootstrap-tpls-0.9.0.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/directiveStopWatch.js"></script>
+<script src="scripts/controllerMain.js"></script>
+<script src="scripts/controllerExport.js"></script>
+<script src="scripts/controllerSearchWBS.js"></script>
+<!-- endbuild -->
+
+</body>
+</html>
