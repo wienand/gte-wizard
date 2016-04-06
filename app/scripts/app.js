@@ -86,5 +86,31 @@ angular
           }
         };
       }
-    ]);
+    ])
+    // http://stackoverflow.com/questions/20459798/angularjs-filter-for-multiple-strings
+    .filter("search", function () {
+      return function (input, searchText, AND_OR, field) {
+        if (!searchText || (searchText.trim() === '')) {
+          return input;
+        }
+        var returnArray = [],
+        // Split on single or multi space
+            splitext = searchText.toLowerCase().split(/\s+/),
+        // Build Regexp with Logical AND using "look ahead assertions"
+            regexp_and = "(?=.*" + splitext.join(")(?=.*") + ")",
+        // Build Regexp with logicial OR
+            regexp_or = searchText.toLowerCase().replace(/\s+/g, "|"),
+        // Compile the regular expression
+            re = new RegExp((AND_OR == "AND") ? regexp_and : regexp_or, "i");
+
+        for (var x = 0; x < input.length; x++) {
+          if (field) {
+            if (re.test(input[x][field])) returnArray.push(input[x]);
+          } else {
+            if (re.test(input[x])) returnArray.push(input[x]);
+          }
+        }
+        return returnArray;
+      }
+    });
 
