@@ -68,7 +68,6 @@
           if (event.origin !== allowedBaseUrl) {
             return;
           }
-          console.log(event);
           receiveMercuryData(event);
           $scope.$apply();
         };

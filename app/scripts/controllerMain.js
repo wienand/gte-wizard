@@ -337,7 +337,6 @@
           if (event.origin !== $scope.originOfMercury) {
             return;
           }
-          console.log(event);
           if (event.data.msg === 'import') {
             var rows = $scope.jsonForMercury(event.data.rowsForGTE, moment(event.data.firstDayOfWeek).add(3, 'days'));
             if (rows.length === 0) {

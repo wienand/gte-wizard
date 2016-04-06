@@ -45,7 +45,6 @@
           if (event.origin !== allowedBaseUrl) {
             return;
           }
-          console.log(event);
           receiveSearchResult(event);
           $scope.searchingInMercury = false;
           $scope.$apply();
@@ -147,7 +146,6 @@
           WBS.TSP_LastUsed = new Date();
           localStorage.timesheetWBS = JSON.stringify($scope.storeOfWBS);
           $window.parent.postMessage({f: '(' + transferWBS + ')', WBS: WBS['d:FieldId']}, allowedBaseUrl);
-          $window.parent.postMessage({f: '(' + transferWBS + ')', WBS: WBS['d:FieldId']}, allowedBaseUrl);
         };
 
         $scope.removeWBS = function (WBS) {
@@ -198,7 +196,6 @@
 
         $scope.hoverOut = function () {
           if ((event.relatedTarget === null) && (event.clientX < 200)) {
-            console.log(event);
             hoverOutFrame();
           }
         };
