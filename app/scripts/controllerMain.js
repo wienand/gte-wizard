@@ -262,15 +262,17 @@
               }
               var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
                   weekdayOfEntry = weekdaysForGTE.indexOf(weekday),
-                  dateOfEntry = moment(refMoment.startOf('week')).add(weekdayOfEntry - 1, 'days').format('YYYYMMDD');
+                  dateOfEntry = moment(refMoment.startOf('week')).add(weekdayOfEntry - 1, 'days').format('YYYYMMDD'),
+                  baseWBS = row.engagement.match(findEngagementRE);
 
-              if (Math.abs(duration) > 0) {
+              if ((Math.abs(duration) > 0) && baseWBS) {
                 var entry = {
                       date       : dateOfEntry,
                       description: row.description,
                       location   : row.location1.split(' - ')[0],
                       role       : row.location2.split(' - ')[0],
-                      duration   : duration
+                      duration   : duration,
+                      baseWBS    : baseWBS[3]
                     },
                     activity = row.activity.split(' - ')[0];
                 if (activity.indexOf(':') > -1) {
@@ -278,14 +280,14 @@
                   entry.type = activity[0];
                   activity = activity[1];
                 }
-                entry.engagement = row.engagement.match(findEngagementRE)[3] + '-' + activity;
+                entry.engagement = entry.baseWBS + '-' + activity;
                 if (entry.engagement[0] !== 'X') {
                   dataForMercury.push(entry);
                 }
               }
             });
           });
-          return dataForMercury;
+          return {rows: dataForMercury, detailDate: 'Sat ' + refMoment.format('MMM DD 2016').replace(/ /g, '%20') + 'offset6'};
         };
         $scope.exportForMercury = function (dataForMercury) {
           if ($scope.detectIE) {
@@ -340,7 +342,7 @@
           if (event.data.msg === 'import') {
             var rows = $scope.jsonForMercury(event.data.rowsForGTE, moment(event.data.firstDayOfWeek).add(3, 'days'));
             if (rows.length === 0) {
-              alert('Nothing to import!')
+              alert('Nothing to import!');
               return;
             }
             $http.get('scripts/importToMercury.js').then(function (response) {
