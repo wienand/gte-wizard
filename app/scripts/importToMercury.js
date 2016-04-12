@@ -144,6 +144,9 @@ function writeToMercury(rows) {
         '\n\nClipboard data:\n' + window.clipboardData.getData('Text'));
   }
   if (detailDate) {
+    if (location.hash === '#/detail/' + detailDate) {
+      detailDate = 'Sat' + detailDate.slice(3);
+    }
     location.hash = '#/detail/' + detailDate;
   } else {
     window.location = 'https://mercury-pg1.ey.net:44365/sap/bc/ui5_ui5/sap/zhcm_ts_cre/index.html?sap-client=200&sap-language=EN';

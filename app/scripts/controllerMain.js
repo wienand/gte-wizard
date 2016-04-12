@@ -287,7 +287,7 @@
               }
             });
           });
-          return {rows: dataForMercury, detailDate: 'Sat ' + refMoment.format('MMM DD 2016').replace(/ /g, '%20') + 'offset6'};
+          return {rows: dataForMercury, detailDate: refMoment.format('ddd MMM DD 2016').replace(/ /g, '%20') + 'offset6'};
         };
         $scope.exportForMercury = function (dataForMercury) {
           if ($scope.detectIE) {
