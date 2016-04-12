@@ -65,7 +65,7 @@ function writeToMercury(rows) {
       entry.AWART = rows[i].type;
     }
     if (rows[i].baseWBS && engagementToCustomer.hasOwnProperty(rows[i].baseWBS)) {
-      entry.ZZYCLIENT = engagementToCustomer[rows[i].baseWBS];
+      entry.ZZCLIENT = engagementToCustomer[rows[i].baseWBS];
     } else {
       var httpForCustomer = new XMLHttpRequest(),
           baseSearchURL = "https://mercury-pg1.ey.net:44365/sap/opu/odata/sap/Z_FIN_TIME_VALIDATION_SRV/WbsSearchHelpList/";
@@ -73,10 +73,15 @@ function writeToMercury(rows) {
           '%27%20%20and%20CountryCode%20eq%20%27' + rows[i].location + '%27%20and%20WBSElement%20eq%20%27' + rows[i].baseWBS + '%27', false);
       httpForCustomer.setRequestHeader("Accept", "application/json");
       httpForCustomer.send();
-      var customerID = httpForCustomer.responseText.search(/<d:ClientOut>.*?<\/d:ClientOut>/);
+      try {
+        //noinspection JSUnresolvedVariable
+        var customerID = JSON.parse(httpForCustomer.responseText).d.results[0].ClientOut;
+      } catch (e) {
+        console.log('Error while querying customer ID', e, httpForCustomer);
+      }
       if (customerID) {
-        entry.ZZYCLIENT = customerID[1];
-        engagementToCustomer[rows[i].baseWBS] = customerID[1];
+        entry.ZZCLIENT = customerID;
+        engagementToCustomer[rows[i].baseWBS] = customerID;
       }
     }
     body = head + JSON.stringify(entry) + tail + body;
