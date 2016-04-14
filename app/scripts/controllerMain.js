@@ -26,7 +26,7 @@
         };
         $scope.getTotalFor = function (rows, field) {
           return _.reduce(_.pluck(_.filter(rows, function (row) {
-            return row.engagement[0] !== 'X';
+            return row.engagement.charAt(0) !== 'X';
           }), field), function (sum, el) {
             return sum + el;
           }, 0);
@@ -34,7 +34,7 @@
         $scope.getTotalDiff = function (rows) {
           var totalDiff = 0;
           _.forEach(rows, function (row) {
-            if (row.engagement[0] !== 'X') {
+            if (row.engagement.charAt(0) !== 'X') {
               totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime;
             }
           });
@@ -43,7 +43,7 @@
         $scope.getTotal = function (rows) {
           var total = 0;
           _.forEach(rows, function (row) {
-            if (row.engagement[0] !== 'X') {
+            if (row.engagement.charAt(0) !== 'X') {
               total += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
             }
           });
@@ -282,7 +282,7 @@
                   activity = activity[1];
                 }
                 entry.engagement = entry.baseWBS + '-' + activity;
-                if (entry.engagement[0] !== 'X') {
+                if (entry.engagement.charAt(0) !== 'X') {
                   dataForMercury.push(entry);
                 }
               }
