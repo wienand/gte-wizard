@@ -92,7 +92,7 @@
         </td>
         <td>
           <ng-form name="activityForm">
-            <input name="activity" type="text" ng-model="row.activity" ng-pattern="/^\w\w\w\w(:\w\w\w\w)?( - .*)?$/" required
+            <input name="activity" type="text" ng-model="row.activity" ng-pattern="/^[\w@]{4}(:[\w@]{4})?( - .*)?$/" required
                    typeahead="activity for activity in typeahead.activity | filter:$viewValue | limitTo:8" style="width: 100%">
               <span ng-show="activityForm.activity.$error.pattern && (activityForm.activity.$viewValue.length > 6)">
                 <b>XXXX - Description</b> or <b>YYYY:XXXX - Description</b>,<br>eg. with YYYY = PATT or ACTT
