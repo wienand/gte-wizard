@@ -8,7 +8,8 @@
           A: 'Absences',
           C: 'Cost centers',
           E: 'External projects',
-          I: 'Internal projects'
+          I: 'Internal projects',
+          D: 'Internal projects'
         };
 
         $scope.tableData = [];

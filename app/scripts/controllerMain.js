@@ -10,7 +10,8 @@
               A: 'Absences',
               C: 'Cost center',
               E: 'External',
-              I: 'Internal'
+              I: 'Internal',
+              D: 'Internal'
             };
         $scope.state = {
           saveInProgress: false,
