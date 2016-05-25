@@ -109,7 +109,9 @@
           });
         };
         $scope.clearTimes = function (rows) {
+          if (confirm('Set all hours to zero?\n\nATTENTION: Data cannot be recovered afterwards!')) {
           _.forEach(rows, function (row) {
+              if (!row.engagement || row.engagement.charAt(0) !== 'X') {
             row.totalTime = 0;
             row.saturday = 0;
             row.sunday = 0;
@@ -118,7 +120,9 @@
             row.wednesday = 0;
             row.thursday = 0;
             row.friday = 0;
+              }
           });
+          }
         };
         $scope.removeTypeaheadEntry = function (key, index, entry) {
           $scope.typeahead[key].splice(index, 1);
