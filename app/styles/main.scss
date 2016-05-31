@@ -111,3 +111,21 @@ body {
 .enlarge-input {
   position: absolute;
 }
+
+.table-striped > tbody > tr:nth-child(odd) > td > .red {
+  background-color: red;
+}
+
+.table-striped > tbody > tr:nth-child(even) > td > .red {
+  background-color: red;
+}
+
+.green {
+  background-color: lightgreen !important;
+}
+.yellow {
+  background-color: yellow !important;
+}
+.red {
+  background-color: red !important;
+}
