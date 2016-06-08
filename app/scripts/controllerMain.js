@@ -158,8 +158,8 @@
           var
               firstCall = true,
               delayedSaveOfTypeahead;
-          if (row.hasOwnProperty('$$hashkey')) {
-            delete row.$$hashkey;
+          if (row.hasOwnProperty('$$hashKey')) {
+              delete row.$$hashKey;
           }
           watches.push($scope.$watch(function () {
             return row.totalTime;
