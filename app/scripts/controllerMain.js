@@ -94,7 +94,7 @@
           rows[indexA] = rows[indexB];
           rows[indexB] = tmp;
         };
-        $scope.roundRow = function (row) {
+        $scope.roundRow = function (row, rowOfSameGroup) {
           var remainder = 0;
           _.forEach(weekdaysForGTE, function (weekday) {
             var roundedValue = Math.floor((row[weekday] + remainder) * 10) / 10;
@@ -102,10 +102,25 @@
             row[weekday] = roundedValue;
           });
           row.friday += remainder;
+          if (rowOfSameGroup) {
+            var remainderFromLast = rowOfSameGroup.friday - Math.floor(rowOfSameGroup.friday * 10) / 10;
+            rowOfSameGroup.friday -= remainderFromLast;
+            row.friday += remainderFromLast;
+          }
+          return row;
         };
-        $scope.roundRows = function (rows) {
+        $scope.roundRows = function (rows, crossLineDistribute) {
+          if (!crossLineDistribute) {
+            var dummy = 0;
+            crossLineDistribute = function(row) {
+              dummy += 1;
+              return dummy;
+            }
+          }
+          var distributeCache = {};
           _.forEach(rows, function (row) {
-            $scope.roundRow(row);
+            var tag = crossLineDistribute(row);
+            distributeCache[tag] = $scope.roundRow(row, distributeCache[tag] || false);
           });
         };
         $scope.clearTimes = function (rows) {
@@ -255,11 +270,16 @@
         }, false);
 
         $scope.refMomentForExport = moment();
-        $scope.jsonForMercury = function (rows, refMoment) {
+        $scope.jsonForMercury = function (rows, refMoment, roundByEngagement) {
           var dataForMercury = [],
               findEngagementRE = /^(.*(\s|[\(]))?(\w-\w{8})((\s|[\)]).*)?$/;
           refMoment = refMoment || moment();
 
+          if (roundByEngagement) {
+            $scope.roundRows(rows, function(row) {
+              return row.engagement.match(findEngagementRE)[3];
+            });
+          }
           _.forEach(rows, function (row) {
             _.forEach(weekdaysForGTE, function (weekday) {
               if (!row.engagement || !row.activity) {
@@ -292,13 +312,16 @@
               }
             });
           });
-          return {rows: dataForMercury, detailDate: refMoment.format('ddd MMM DD 2017').replace(/ /g, '%20') + 'offset6'};
+          return {rows: dataForMercury, detailDate: refMoment.format('ddd MMM DD YYYY').replace(/ /g, '%20') + 'offset6'};
         };
-        $scope.exportForMercury = function (dataForMercury) {
-          if ($scope.detectIE) {
-            window.clipboardData.setData('Text', JSON.stringify(dataForMercury));
-          }
+        $scope.jsonForMercuryAsText = function (rows, refMoment) {
+          return JSON.stringify($scope.jsonForMercury(rows, refMoment, true));
+        };
+        $scope.exportForMercurySuccess = function (event) {
           alert('Please directly import the data to Mercury as it is stored in the clipboard!\n\nPlease find the bookmarklet required for the import to Mercury on the end of the page after hitting "Edit auto complete entries".');
+        };
+        $scope.exportForMercuryError = function (event) {
+          alert('Error while accessing the clipboard. Please copy the text from the edit field on the end of the page after hitting "Edit auto complete entries" instead and notify Oliver Wienand (oliver.wienand@de.ey.com).');
         };
         $scope.sendTimesheetUpdate = $scope.sendTimesheetUpdate || {};
         $scope.sendTimesheetUpdate.exec = function (rowsForGTE) {
