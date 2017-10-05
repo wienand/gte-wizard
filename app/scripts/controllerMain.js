@@ -111,16 +111,18 @@
         };
         $scope.roundRows = function (rows, crossLineDistribute) {
           if (!crossLineDistribute) {
-            var dummy = 0;
             crossLineDistribute = function(row) {
-              dummy += 1;
-              return dummy;
+              return null;
             }
           }
           var distributeCache = {};
           _.forEach(rows, function (row) {
             var tag = crossLineDistribute(row);
-            distributeCache[tag] = $scope.roundRow(row, distributeCache[tag] || false);
+            if (tag) {
+              distributeCache[tag] = $scope.roundRow(row, distributeCache[tag] || false);
+            } else {
+              $scope.roundRow(row);
+            }
           });
         };
         $scope.clearTimes = function (rows) {
@@ -277,7 +279,8 @@
 
           if (roundByEngagement) {
             $scope.roundRows(rows, function(row) {
-              return row.engagement.match(findEngagementRE)[3];
+              var match = row.engagement.match(findEngagementRE);
+              return match === null ? null : match[3];
             });
           }
           _.forEach(rows, function (row) {
