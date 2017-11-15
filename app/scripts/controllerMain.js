@@ -96,16 +96,24 @@
         };
         $scope.roundRow = function (row, rowOfSameGroup) {
           var remainder = 0;
+          row._lastDayWithValues = null;
           _.forEach(weekdaysForGTE, function (weekday) {
-            var roundedValue = Math.floor((row[weekday] + remainder) * 10) / 10;
-            remainder = row[weekday] + remainder - roundedValue;
-            row[weekday] = roundedValue;
+            if (row[weekday] >  0) {
+              var roundedValue = Math.floor((row[weekday] + remainder) * 10) / 10;
+              remainder = row[weekday] + remainder - roundedValue;
+              row[weekday] = roundedValue;
+              if (roundedValue > 0) {
+                row._lastDayWithValues = weekday;
+              }
+            }
           });
-          row.friday += remainder;
-          if (rowOfSameGroup) {
-            var remainderFromLast = rowOfSameGroup.friday - Math.floor(rowOfSameGroup.friday * 10) / 10;
-            rowOfSameGroup.friday -= remainderFromLast;
-            row.friday += remainderFromLast;
+          if (row._lastDayWithValues) {
+            row[row._lastDayWithValues] += remainder;
+            if (rowOfSameGroup) {
+              var remainderFromLast = rowOfSameGroup[rowOfSameGroup._lastDayWithValues] - Math.floor(rowOfSameGroup[rowOfSameGroup._lastDayWithValues] * 10) / 10;
+              rowOfSameGroup[rowOfSameGroup._lastDayWithValues] -= remainderFromLast;
+              row[row._lastDayWithValues] += remainderFromLast;
+            }
           }
           return row;
         };
