@@ -135,18 +135,16 @@
         };
         $scope.clearTimes = function (rows) {
           if (confirm('Set all hours to zero?\n\nATTENTION: Data cannot be recovered afterwards!')) {
-          _.forEach(rows, function (row) {
+            _.forEach(rows, function (row) {
               if (!row.engagement || row.engagement.charAt(0) !== 'X') {
-            row.totalTime = 0;
-            row.saturday = 0;
-            row.sunday = 0;
-            row.monday = 0;
-            row.tuesday = 0;
-            row.wednesday = 0;
-            row.thursday = 0;
-            row.friday = 0;
+                _.forEach(weekdaysForGTE, function (weekday) {
+                  if (row[weekday] > 0) {
+                    row[weekday] = 0;
+                  }
+                });
+                row.totalTime = row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
               }
-          });
+            });
           }
         };
         $scope.removeTypeaheadEntry = function (key, index, entry) {
