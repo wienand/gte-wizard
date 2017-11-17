@@ -109,7 +109,7 @@
           });
           if (row._lastDayWithValues) {
             row[row._lastDayWithValues] += remainder;
-            if (rowOfSameGroup) {
+            if (rowOfSameGroup && rowOfSameGroup._lastDayWithValues) {
               var remainderFromLast = rowOfSameGroup[rowOfSameGroup._lastDayWithValues] - Math.floor(rowOfSameGroup[rowOfSameGroup._lastDayWithValues] * 10) / 10;
               rowOfSameGroup[rowOfSameGroup._lastDayWithValues] -= remainderFromLast;
               row[row._lastDayWithValues] += remainderFromLast;
