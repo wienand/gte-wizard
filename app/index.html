@@ -50,12 +50,11 @@
     <table class="table table-bordered table-striped">
         <thead>
           <tr class="info">
-              <th colspan="2">Timer</th>
-              <th rowspan="2" style="padding-bottom: 25px; width:14em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);"><i ng-if="!isAscending" class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-              <th rowspan="2" style="padding-bottom: 25px; width:12em;">Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-              <th rowspan="2" style="padding-bottom: 25px; width:12em;">Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-              <th rowspan="2" style="padding-bottom: 25px; width: 1em">Loc</th>
-              <th rowspan="2" style="padding-bottom: 25px; width: 1em">Role</th>
+              <th colspan="2" style="width:8em;">Timer</th>
+              <th rowspan="2" style="padding-bottom: 25px; width:10em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);"><i ng-if="!isAscending" class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width:8em;">Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width:8em;">Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width: 1em">Location <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
               <th colspan="2" class="weekday" style="width: 5em">Monday</th>
               <th colspan="2" class="weekday" style="width: 5em">Tuesday</th>
               <th colspan="2" class="weekday" style="width: 5em">Wednesday</th>
@@ -92,10 +91,10 @@
       </thead>
       <tbody>
       <tr ng-repeat="row in rowsForGTE">
-        <td style="vertical-align: middle; text-align: center; width: 1px;">
+        <td style="vertical-align: middle; text-align: center; width: 1.5em;">
           <span ng-show="row.removable" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1" ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
         </td>
-        <td style="width:7.5em">
+        <td style="width:6.5em">
           <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
                      start-time="row._startTime" running="row._running">
           </stopwatch>
@@ -123,7 +122,6 @@
                  typeahead="description for description in typeahead.description | filter:$viewValue | limitTo:8" style="width: 100%">
         </td>
         <td><input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
-        <td><input type="text" ng-model="row.location2" typeahead="location2 for location2 in typeahead.location2 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
 
         <td class="weekday"><input type="time" ng-model="row.mondaySt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')" style="width: 100%"></td>
         <td class="weekday"><input type="time" ng-model="row.mondayEt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')" style="width: 100%"></td>
@@ -158,7 +156,7 @@
       </tbody>
       <tfoot>
       <tr class="info">
-        <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
+        <th colspan="2" style="text-align:center">{{ getTotalFor(rowsForGTE, 'totalTime') | number : 2 }}</th>
         <th colspan="3" id="drop-zone" class="drop-zone" on-file="importJson">
           <span ng-show="value" ng-repeat="(key, value) in aggregateByType(rowsForGTE)" class="label label-default" style="margin-right:10px;padding-top:6px;padding-bottom:6px;">
             {{key}} <span class="badge" style="background-color:#3071a9">{{value | number:1}}</span>
@@ -179,7 +177,7 @@
             </span>
           </div>
         </th>
-        <th colspan="2" style="text-align: center">
+        <th style="text-align: center">
           <button class="btn btn-primary btn-xs" ng-click="editTypeaheadEntries = !editTypeaheadEntries">
             Setup & Instructions
           </button>
@@ -219,7 +217,7 @@
   </div>
   <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries">
     <div class="col-md-3" ng-repeat="(key, entries) in typeahead">
-      <h3 style="text-decoration: underline;text-align: center">{{key[0].toUpperCase() + key.substring(1)}}</h3>
+      <h3 style="text-decoration: underline;text-align: center">{{ key[0].toUpperCase() + key.substring(1) }}</h3>
       <table class="table table-bordered table-striped">
         <thead>
         <tr class="info">

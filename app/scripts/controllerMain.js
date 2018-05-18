@@ -76,43 +76,36 @@
           }
         };
 
-        // $scope.removeEngagement = function (index, numRow)
-        // {
-        //   $scope.rowsForGTE.splice(index, numRow);
-        //   $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
-        // }
-
         $scope.addRow = function () {
           var newRow = {
             _startTime : null,
             _running   : null,
             totalTime  : 0,
             removable  : true,
-            engagement : '',
+            engagement : "",
             activity   : '0000 - General',
             description: '',
-            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH',
-            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
-            saturdaySt   : '00:00',
-            saturdayEt   : '00:00',
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH-OT',
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
             saturday     : 0,
-            sundaySt     : '00:00',
-            sundayEt     : '00:00',
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
             sunday       : 0,
-            mondaySt     : '00:00',
-            mondayEt     : '00:00',
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
             monday       : 0,
-            tuesdaySt    : '00:00',
-            tuesdayEt    : '00:00',
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
             tuesday      : 0,
-            wednesdaySt  : '00:00',
-            wednesdayEt  : '00:00',
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
             wednesday    : 0,
-            thursdaySt   : '00:00',
-            thursdayEt   : '00:00',
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
             thursday     : 0,
-            fridaySt     : '00:00',
-            fridayEt     : '00:00',
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
             friday       : 0
           };
           $scope.rowsForGTE.push(newRow);
@@ -190,7 +183,7 @@
             _.forEach(rows, function (row) {
               if (!row.engagement || row.engagement.charAt(0) !== 'X') {
                 _.forEach(weekdaysTimeForGET, function (weekday) {
-                  row[weekday] = '00:00';
+                  row[weekday] = "00:00";
                 });
                 row.totalTime = getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
               }
@@ -275,31 +268,30 @@
             _running   : null,
             totalTime  : 0,
             removable  : false,
-            engagement : '', // Insert Default break engagement
-            activity   : 'AMBR',
-            description: 'Morning Break',
-            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH',
-            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
-            saturdaySt   : '00:00',
-            saturdayEt   : '00:00',
+            engagement : "", // Insert default engagement
+            activity   : "AMBR",
+            description: "Morning Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
             saturday     : 0,
-            sundaySt     : '00:00',
-            sundayEt     : '00:00',
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
             sunday       : 0,
-            mondaySt     : '00:00',
-            mondayEt     : '00:00',
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
             monday       : 0,
-            tuesdaySt    : '00:00',
-            tuesdayEt    : '00:00',
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
             tuesday      : 0,
-            wednesdaySt  : '00:00',
-            wednesdayEt  : '00:00',
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
             wednesday    : 0,
-            thursdaySt   : '00:00',
-            thursdayEt   : '00:00',
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
             thursday     : 0,
-            fridaySt     : '00:00',
-            fridayEt     : '00:00',
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
             friday       : 0
           };
           var lunchBreak = {
@@ -307,31 +299,30 @@
             _running   : null,
             totalTime  : 0,
             removable  : false,
-            engagement : '', // Insert Default break engagement
-            activity   : 'LNCH',
-            description: 'Lunch Break',
-            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH',
-            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
-            saturdaySt   : '00:00',
-            saturdayEt   : '00:00',
+            engagement : "", // Insert default engagement
+            activity   : "LNCH",
+            description: "Lunch Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
             saturday     : 0,
-            sundaySt     : '00:00',
-            sundayEt     : '00:00',
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
             sunday       : 0,
-            mondaySt     : '00:00',
-            mondayEt     : '00:00',
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
             monday       : 0,
-            tuesdaySt    : '00:00',
-            tuesdayEt    : '00:00',
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
             tuesday      : 0,
-            wednesdaySt  : '00:00',
-            wednesdayEt  : '00:00',
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
             wednesday    : 0,
-            thursdaySt   : '00:00',
-            thursdayEt   : '00:00',
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
             thursday     : 0,
-            fridaySt     : '00:00',
-            fridayEt     : '00:00',
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
             friday       : 0
           };
           var eveningBreak = {
@@ -339,31 +330,30 @@
             _running   : null,
             totalTime  : 0,
             removable  : false,
-            engagement : '', // Insert Default break engagement
-            activity   : 'PMBR',
-            description: 'Afternoon Break',
-            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH',
-            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
-            saturdaySt   : '00:00',
-            saturdayEt   : '00:00',
+            engagement : "", // Insert default engagement
+            activity   : "PMBR",
+            description: "Afternoon Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
             saturday     : 0,
-            sundaySt     : '00:00',
-            sundayEt     : '00:00',
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
             sunday       : 0,
-            mondaySt     : '00:00',
-            mondayEt     : '00:00',
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
             monday       : 0,
-            tuesdaySt    : '00:00',
-            tuesdayEt    : '00:00',
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
             tuesday      : 0,
-            wednesdaySt  : '00:00',
-            wednesdayEt  : '00:00',
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
             wednesday    : 0,
-            thursdaySt   : '00:00',
-            thursdayEt   : '00:00',
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
             thursday     : 0,
-            fridaySt     : '00:00',
-            fridayEt     : '00:00',
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
             friday       : 0
           };
           if($scope.rowsForGTE.length === 0)
@@ -430,10 +420,9 @@
         $scope.typeaheadLastUsed = JSON.parse($window.localStorage.typeahead || null) ||
             {
               engagement : {},
-              activity   : {'0000 - General': new Date().toJSON()},
+              activity   : {'0000-General': new Date().toJSON()},
               description: {},
-              location1  : {'DE': new Date().toJSON()},
-              location2  : {'REG': new Date().toJSON()}
+              location1  : {'CH-OT': new Date().toJSON()}
             };
         createTypeAheadLists();
         updateRowsFromLocalStorage(true);
@@ -452,7 +441,6 @@
 
         $scope.refMomentForExport = moment();
         $scope.jsonForMercury = function (rows, refMoment, roundByEngagement) {
-          debugger;
           var dataForMercury = [],
               findEngagementRE = /^(.*(\s|[\(]))?(\w-\w{8})((\s|[\)]).*)?$/;
           refMoment = refMoment || moment();
@@ -478,7 +466,6 @@
                       date       : dateOfEntry,
                       description: row.description,
                       location   : row.location1.split(' - ')[0],
-                      role       : row.location2.split(' - ')[0],
                       duration   : duration,
                       baseWBS    : baseWBS[3]
                     },
