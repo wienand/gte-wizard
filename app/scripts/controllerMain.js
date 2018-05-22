@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   /* global _, angular, console, moment, alert, confirm */
-
+  var isAscending = true;
   angular.module('gteApp')
       .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
@@ -147,6 +147,48 @@
             });
           }
         };
+        $scope.sortEngagement = function(rows) {
+          if(isAscending)
+          {
+            var engList = _.sortBy(rows, "engagement", function(rows) {
+                            _.sortBy(rows, "monday", function(rows) {
+                              _.sortBy(rows, "tuesday", function(rows) {
+                                _.sortBy(rows, "wednesday", function(rows) {
+                                  _.sortBy(rows, "thursday", function(rows) {
+                                    _.sortBy(rows, "friday", function(rows) {
+                                      _.sortBy(rows, "saturday", function(rows) {
+                                      });
+                                    });
+                                  });
+                                });
+                              });
+                            });
+                          }); 
+            isAscending = false;
+          }
+          else
+          {
+            var engList = _.sortBy(rows, "engagement", function(rows) {
+                              _.sortBy(rows, "monday", function(rows) {
+                                _.sortBy(rows, "tuesday", function(rows) {
+                                  _.sortBy(rows, "wednesday", function(rows) {
+                                    _.sortBy(rows, "thursday", function(rows) {
+                                      _.sortBy(rows, "friday", function(rows) {
+                                        _.sortBy(rows, "saturday", function(rows) {
+                                        });
+                                      });
+                                    });
+                                  });
+                                });
+                              });
+                            });                              
+            engList.reverse();
+            isAscending = true;
+          }          
+          $scope.rowsForGTE = engList;
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);          
+        }
+
         $scope.removeTypeaheadEntry = function (key, index, entry) {
           $scope.typeahead[key].splice(index, 1);
           delete $scope.typeaheadLastUsed[key][entry];
