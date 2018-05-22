@@ -268,7 +268,7 @@
             _running   : null,
             totalTime  : 0,
             removable  : false,
-            engagement : "", // Insert default engagement
+            engagement : "A-CH010026",
             activity   : "AMBR",
             description: "Morning Break",
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
@@ -299,7 +299,7 @@
             _running   : null,
             totalTime  : 0,
             removable  : false,
-            engagement : "", // Insert default engagement
+            engagement : "A-CH010026",
             activity   : "LNCH",
             description: "Lunch Break",
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
@@ -330,7 +330,7 @@
             _running   : null,
             totalTime  : 0,
             removable  : false,
-            engagement : "", // Insert default engagement
+            engagement : "A-CH010026",
             activity   : "PMBR",
             description: "Afternoon Break",
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
