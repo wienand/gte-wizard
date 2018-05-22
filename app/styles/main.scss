@@ -68,11 +68,69 @@ body {
   }
 }
 
+input[type=time]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.without_ampm::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+input[type=time]::-webkit-clear-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  -ms-appearance:none;
+  appearance: none;
+  margin: -10px; 
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   .container {
     max-width: 730px;
   }
+
+.table > tbody > tr > th,
+.table > tbody > tr > td,
+{
+  padding: 0px 0px 0px 0px;
+}
+.table > thead:first-child > tr:first-child > th
+{
+  text-align: center;
+}
+
+input[type=time]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.without_ampm::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+input[type=time]::-webkit-clear-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  -ms-appearance:none;
+  appearance: none;
+  margin: -10px; 
+}
+input[type=time], input[type=text]
+{
+  font-size: 12px;
+  line-height: 1em;
+}
+
+.table > thead > tr > th,
+.table > thead > tr > td,
+.table > tfoot > tr > th,
+.table > tfoot > tr > td
+{
+  padding: 8px 5px;
+}
 
   /* Remove the padding we set earlier */
   .header,

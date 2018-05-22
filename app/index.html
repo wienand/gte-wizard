@@ -48,43 +48,60 @@
   </div>
   <div class="row">
     <table class="table table-bordered table-striped">
-      <thead>
-      <tr class="info">
-        <th colspan="2">Timer</th>
-        <th>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-        <th>Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-        <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-        <th style="width: 5em">Loc</th>
-        <th style="width: 5em">Role</th>
-        <th class="weekend" style="width: 5em" ng-hide="state.hideWeekend">Sat</th>
-        <th class="weekend" style="width: 5em" ng-hide="state.hideWeekend">Son</th>
-        <th class="weekday" style="width: 5em">Mon</th>
-        <th class="weekday" style="width: 5em">Tue</th>
-        <th class="weekday" style="width: 5em">Wed</th>
-        <th class="weekday" style="width: 5em">Thu</th>
-        <th class="weekday" style="width: 5em">Fri</th>
-        <th style="width: 5em" id="thTotalColumn">
-          Total
-          <span ng-click="roundRows(rowsForGTE)" tooltip-placement="bottom" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
-            <i class="glyphicon glyphicon-transfer"></i>
-          </span>
-        </th>
-        <th style="width: 5.5em">Delta</th>
-      </tr>
+        <thead>
+          <tr class="info">
+              <th colspan="2" style="width:8em;">Timer</th>
+              <th rowspan="2" style="padding-bottom: 25px; width:10em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);"><i ng-if="!isAscending" class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width:8em;">Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width:8em;">Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width: 1em">Location <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th colspan="2" class="weekday" style="width: 4em">Monday</th>
+              <th colspan="2" class="weekday" style="width: 4em">Tuesday</th>
+              <th colspan="2" class="weekday" style="width: 4em">Wednesday</th>
+              <th colspan="2" class="weekday" style="width: 4em">Thursday</th>
+              <th colspan="2" class="weekday" style="width: 4em">Friday</th>
+              <th colspan="2" class="weekend" style="width: 4em" ng-hide="state.hideWeekend">Saturday</th>
+              <th colspan="2" class="weekend" style="width: 4em" ng-hide="state.hideWeekend">Sunday</th>
+              <th rowspan="2" style="padding-bottom: 25px; width: 5em" id="thTotalColumn">
+                  Total
+                  <span ng-click="roundRows(rowsForGTE)" tooltip-placement="bottom" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
+                      <i class="glyphicon glyphicon-transfer"></i>
+                  </span>
+              </th>
+              <th rowspan="2" style="padding-bottom: 25px; width: 5em">Delta</th>
+          </tr>
+          <tr class="info">
+            <td>Close</td>
+            <td>Stopwatch</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Start</td>
+            <td>End</td>
+            <td>Start</td>
+            <td>End</td>
+          </tr>
       </thead>
       <tbody>
       <tr ng-repeat="row in rowsForGTE">
-        <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1">
-          <span ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
+        <td style="vertical-align: middle; text-align: center; width: 1.5em;">
+          <span ng-show="row.removable" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1" ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
         </td>
-        <td style="width:7.5em">
+        <td style="width:6.5em">
           <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
                      start-time="row._startTime" running="row._running">
           </stopwatch>
         </td>
         <td>
           <ng-form name="engagementForm">
-            <input name="engagement" type="text" ng-model="row.engagement" ng-pattern="/^(.*(\s|[\(]))?\w-\w{8}((\s|[\)]).*)?$/" required
+            <input name="engagement" type="text" ng-model="row.engagement" required ng-pattern="/^(.*(\s|[\(]))?\w-\w{8}((\s|[\)]).*)?$/"
                    typeahead="engagement for engagement in typeahead.engagement | filter:$viewValue | limitTo:8" style="width: 100%">
               <span ng-show="engagementForm.engagement.$error.pattern && (engagementForm.engagement.$viewValue.length > 12)">
                 <b>X-XXXXXXXX - Description</b>
@@ -93,7 +110,7 @@
         </td>
         <td>
           <ng-form name="activityForm">
-            <input name="activity" type="text" ng-model="row.activity" ng-pattern="/^[\w@]{4}(:[\w@]{4})?( - .*)?$/" required
+            <input name="activity" type="text" ng-model="row.activity" required ng-pattern="/^[\w@]{4}(:[\w@]{4})?( - .*)?$/"
                    typeahead="activity for activity in typeahead.activity | filter:$viewValue | limitTo:8" style="width: 100%">
               <span ng-show="activityForm.activity.$error.pattern && (activityForm.activity.$viewValue.length > 6)">
                 <b>XXXX - Description</b> or <b>YYYY:XXXX - Description</b>,<br>eg. with YYYY = PATT or ACTT
@@ -104,23 +121,33 @@
           <input resize-input-to-length type="text" ng-model="row.description"
                  typeahead="description for description in typeahead.description | filter:$viewValue | limitTo:8" style="width: 100%">
         </td>
-        <td><input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
-        <td><input type="text" ng-model="row.location2" typeahead="location2 for location2 in typeahead.location2 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
-        <td class="weekend" ng-hide="state.hideWeekend"><input type="number" step="0.1" ng-model="row.saturday" style="width: 100%"></td>
-        <td class="weekend" ng-hide="state.hideWeekend"><input type="number" step="0.1" ng-model="row.sunday" style="width: 100%"></td>
-        <td class="weekday"><input type="number" step="0.1" ng-model="row.monday" style="width: 100%"></td>
-        <td class="weekday"><input type="number" step="0.1" ng-model="row.tuesday" style="width: 100%"></td>
-        <td class="weekday"><input type="number" step="0.1" ng-model="row.wednesday" style="width: 100%"></td>
-        <td class="weekday"><input type="number" step="0.1" ng-model="row.thursday" style="width: 100%"></td>
-        <td class="weekday"><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
+        <td>
+          <input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%">
+        </td>
+
+
+        <td class="weekday"><input type="text" ng-model="row.mondaySt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.mondayEt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.tuesdaySt" ng-change="setValidTime(row.tuesdaySt, row.tuesdayEt, row, 'tuesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.tuesdayEt" ng-change="setValidTime(row.tuesdaySt, row.tuesdayEt, row, 'tuesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.wednesdaySt" ng-change="setValidTime(row.wednesdaySt, row.wednesdayEt, row, 'wednesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.wednesdayEt" ng-change="setValidTime(row.wednesdaySt, row.wednesdayEt, row, 'wednesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.thursdaySt" ng-change="setValidTime(row.thursdaySt, row.thursdayEt, row, 'thursday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.thursdayEt" ng-change="setValidTime(row.thursdaySt, row.thursdayEt, row, 'thursday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.fridaySt" ng-change="setValidTime(row.fridaySt, row.fridayEt, row, 'friday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.fridayEt" ng-change="setValidTime(row.fridaySt, row.fridayEt, row, 'friday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.saturdaySt" ng-change="setValidTime(row.saturdaySt, row.saturdayEt, row, 'saturday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.saturdayEt" ng-change="setValidTime(row.saturdaySt, row.saturdayEt, row, 'saturday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.sundaySt" ng-change="setValidTime(row.sundaySt, row.sundayEt, row, 'sunday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.sundayEt" ng-change="setValidTime(row.sundaySt, row.sundayEt, row, 'sunday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>        
         <td style="text-align:center">
-          {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}
+          {{ getEngagementTotla(row) | number : 1 }}
             <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
               <i class="glyphicon glyphicon-transfer"></i>
             </span>
         </td>
         <td style="text-align:center">
-          {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime | number:2}}
+          {{ getEngagementTotla(row) | number : 2 }}
             <span ng-hide="$index === 0" ng-click="swapRows(rowsForGTE, $index - 1, $index)" tooltip-placement="left" tooltip="move row up" style="cursor: pointer">
               <i class="glyphicon glyphicon-arrow-up"></i>
             </span>
@@ -132,7 +159,7 @@
       </tbody>
       <tfoot>
       <tr class="info">
-        <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
+        <th colspan="2" style="text-align:center">{{ getTotalFor(rowsForGTE, 'totalTime') | number : 2 }}</th>
         <th colspan="3" id="drop-zone" class="drop-zone" on-file="importJson">
           <span ng-show="value" ng-repeat="(key, value) in aggregateByType(rowsForGTE)" class="label label-default" style="margin-right:10px;padding-top:6px;padding-bottom:6px;">
             {{key}} <span class="badge" style="background-color:#3071a9">{{value | number:1}}</span>
@@ -153,18 +180,18 @@
             </span>
           </div>
         </th>
-        <th colspan="2" style="text-align: center">
+        <th style="text-align: center">
           <button class="btn btn-primary btn-xs" ng-click="editTypeaheadEntries = !editTypeaheadEntries">
             Setup & Instructions
           </button>
         </th>
-        <th style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
-        <th style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'monday') | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'tuesday') | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'wednesday') | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'monday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'tuesday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'wednesday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
+        <th colspan="2" style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
         <th style="text-align:center" class="weekday">{{getTotal(rowsForGTE) | number:1}}</th>
         <th style="text-align:center" class="weekday">{{getTotalDiff(rowsForGTE) | number:2}}</th>
       </tr>
@@ -175,7 +202,7 @@
       <button ng-click="addRow()" style="width: 18%; margin-right: 3%" class="btn btn-primary">Add row</button>
       <span style="width: 18%; margin-right: 3%">
         <span ng-click="refMomentForExport.add(-1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-left"></i></span>
-        <button ngclipboard ngclipboard-text="jsonForMercuryAsText(rowsForGTE, refMomentForExport)"
+        <button ngclipboard data-clipboard-text="{{jsonForMercuryAsText(rowsForGTE, refMomentForExport)}}"
                 ngclipboard-success="exportForMercurySuccess(e)" ngclipboard-error="exportForMercuryError(e)"
                 id="mercury" class="btn btn-primary">
           Export for Mercury for week {{refMomentForExport.startOf('week').add(1, 'day').format('YYYY-MM-DD')}}
@@ -193,7 +220,7 @@
   </div>
   <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries">
     <div class="col-md-3" ng-repeat="(key, entries) in typeahead">
-      <h3 style="text-decoration: underline;text-align: center">{{key[0].toUpperCase() + key.substring(1)}}</h3>
+      <h3 style="text-decoration: underline;text-align: center">{{ key[0].toUpperCase() + key.substring(1) }}</h3>
       <table class="table table-bordered table-striped">
         <thead>
         <tr class="info">
@@ -281,17 +308,17 @@
 <script src="bower_components/clipboard/dist/clipboard.js"></script>
 <script src="bower_components/ngclipboard/dist/ngclipboard.js"></script>
 <!-- endbower -->
-<script src="bower_components/underscore/underscore.js"></script>
-<script src="bower_components/moment/min/moment.min.js"></script>
+<script type="application/javascript" src="bower_components/underscore/underscore.js"></script>
+<script type="application/javascript" src="bower_components/moment/min/moment.min.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
-<script src="scripts/ui-bootstrap-tpls-0.9.0.js"></script>
-<script src="scripts/app.js"></script>
-<script src="scripts/directiveStopWatch.js"></script>
-<script src="scripts/controllerMain.js"></script>
-<script src="scripts/controllerExport.js"></script>
-<script src="scripts/controllerSearchWBS.js"></script>
+<script type="application/javascript" src="scripts/ui-bootstrap-tpls-0.9.0.js"></script>
+<script type="application/javascript" src="scripts/app.js"></script>
+<script type="application/javascript" src="scripts/directiveStopWatch.js"></script>
+<script type="application/javascript" src="scripts/controllerMain.js"></script>
+<script type="application/javascript" src="scripts/controllerExport.js"></script>
+<script type="application/javascript" src="scripts/controllerSearchWBS.js"></script>
 <!-- endbuild -->
 
 </body>

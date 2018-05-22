@@ -1,11 +1,12 @@
 (function () {
   'use strict';
   /* global _, angular, console, moment, alert, confirm */
-
+  var isAscending = true;
   angular.module('gteApp')
       .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+            weekdaysTimeForGET = ['saturday', 'saturdaySt', 'saturdayEt', 'sunday', 'sundaySt', 'sundayEt', 'monday', 'mondaySt', 'mondayEt', 'tuesday', 'tuesdaySt', 'tuesdayEt', 'wednesday', 'wednesdaySt', 'wednesdayEt', 'thursday', 'thursdaySt', 'thursdayEt', 'friday', 'fridaySt', 'fridayEt'],
             chargeTypes = {
               A: 'Absences',
               C: 'Cost center',
@@ -24,18 +25,24 @@
             row.totalTime = newTime;
           };
         };
+
         $scope.getTotalFor = function (rows, field) {
           return _.reduce(_.pluck(_.filter(rows, function (row) {
             return !row.engagement || (row.engagement.charAt(0) !== 'X');
-          }), field), function (sum, el) {
+          }), field), function (sum, el) {          
             return sum + el;
           }, 0);
         };
+        $scope.setValidTime = function(strTime, endTime, row, property)
+        {
+          getValidTime(strTime, endTime, row, property);
+        }
+   
         $scope.getTotalDiff = function (rows) {
           var totalDiff = 0;
           _.forEach(rows, function (row) {
             if (!row.engagement || (row.engagement.charAt(0) !== 'X')) {
-              totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime;
+              totalDiff += (getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null) - row.totalTime);
             }
           });
           return totalDiff;
@@ -44,7 +51,7 @@
           var total = 0;
           _.forEach(rows, function (row) {
             if (!row.engagement || (row.engagement.charAt(0) !== 'X')) {
-              total += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+              total += (getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null));
             }
           });
           return total;
@@ -57,7 +64,7 @@
               chargeType = chargeTypes[row.engagement.charAt(0)] || row.engagement.charAt(0);
             }
             totalByType[chargeType] = totalByType[chargeType] || 0;
-            totalByType[chargeType] += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+            totalByType[chargeType] += getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
           });
           return totalByType;
         };
@@ -68,32 +75,70 @@
             $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
           }
         };
+
         $scope.addRow = function () {
           var newRow = {
             _startTime : null,
             _running   : null,
             totalTime  : 0,
-            engagement : '',
+            removable  : true,
+            engagement : "",
             activity   : '0000 - General',
             description: '',
-            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'DE',
-            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
-            saturday   : 0,
-            sunday     : 0,
-            monday     : 0,
-            tuesday    : 0,
-            wednesday  : 0,
-            thursday   : 0,
-            friday     : 0
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH-OT',
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
           };
           $scope.rowsForGTE.push(newRow);
-          addWatchesForRow(newRow);
+           addWatchesForRow(newRow);
         };
         $scope.swapRows = function (rows, indexA, indexB) {
           var tmp = rows[indexA];
           rows[indexA] = rows[indexB];
           rows[indexB] = tmp;
         };
+
+        $scope.getEngagementTotla = function(row)
+        {
+          var sum = getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
+          return sum;
+        }
+
+        $scope.sortEngagement = function(rows) {         
+          if(isAscending)
+          {
+            var engList = _.sortBy(rows, "engagement");
+            isAscending = false;
+          }
+          else
+          {
+            var engList = _.sortBy(rows, "engagement");
+            engList.reverse();
+            isAscending = true;
+          }          
+          $scope.rowsForGTE = engList;
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);          
+        }
+
         $scope.roundRow = function (row, rowOfSameGroup) {
           var remainder = 0;
           row._lastDayWithValues = null;
@@ -137,12 +182,10 @@
           if (confirm('Set all hours to zero?\n\nATTENTION: Data cannot be recovered afterwards!')) {
             _.forEach(rows, function (row) {
               if (!row.engagement || row.engagement.charAt(0) !== 'X') {
-                _.forEach(weekdaysForGTE, function (weekday) {
-                  if (row[weekday] > 0) {
-                    row[weekday] = 0;
-                  }
+                _.forEach(weekdaysTimeForGET, function (weekday) {
+                  row[weekday] = "00:00";
                 });
-                row.totalTime = row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+                row.totalTime = getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
               }
             });
           }
@@ -166,7 +209,21 @@
             });
           }
         };
+        var getValidTime = function(startTime, endTime, row, prop)
+        {
+          var sTime = moment(startTime, "hh:mm");
+          var eTime = moment(endTime, "hh:mm");
 
+          if(row !== null)
+          {
+            _.each(row, function(value, key) {
+              if(key === prop) {
+                row[key] = parseFloat(moment.duration(eTime.diff(sTime)).hours() + (moment.duration(eTime.diff(sTime)).minutes() / 60));
+              }
+            });
+          }
+          return parseFloat(moment.duration(eTime.diff(sTime)).hours() + (moment.duration(eTime.diff(sTime)).minutes() / 60));
+        }
         var guid = function () {
           var s4 = function () {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -205,8 +262,114 @@
           }));
         };
 
+        var defaultBreakRows = function () {
+          var morningBreak = {
+            _startTime : null,
+            _running   : null,
+            totalTime  : 0,
+            removable  : false,
+            engagement : "A-CH010026",
+            activity   : "AMBR",
+            description: "Morning Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          var lunchBreak = {
+            _startTime : null,
+            _running   : null,
+            totalTime  : 0,
+            removable  : false,
+            engagement : "A-CH010026",
+            activity   : "LNCH",
+            description: "Lunch Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          var eveningBreak = {
+            _startTime : null,
+            _running   : null,
+            totalTime  : 0,
+            removable  : false,
+            engagement : "A-CH010026",
+            activity   : "PMBR",
+            description: "Afternoon Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          if($scope.rowsForGTE.length === 0)
+          {
+            $scope.rowsForGTE.push(morningBreak);                 
+            $scope.rowsForGTE.push(lunchBreak);                     
+            $scope.rowsForGTE.push(eveningBreak);
+            addWatchesForRow(lunchBreak); 
+            addWatchesForRow(morningBreak);     
+            addWatchesForRow(eveningBreak);
+          }
+      }
+
         var updateRowsFromLocalStorage = function (calledInScope) {
           $scope.rowsForGTE = JSON.parse($window.localStorage.rowsForGTE || null) || $scope.rowsForGTE || [];
+          defaultBreakRows();
           while (watches.length > 0) {
             var watch = watches.pop();
             watch();
@@ -257,10 +420,9 @@
         $scope.typeaheadLastUsed = JSON.parse($window.localStorage.typeahead || null) ||
             {
               engagement : {},
-              activity   : {'0000 - General': new Date().toJSON()},
+              activity   : {'0000-General': new Date().toJSON()},
               description: {},
-              location1  : {'DE': new Date().toJSON()},
-              location2  : {'REG': new Date().toJSON()}
+              location1  : {'CH-OT': new Date().toJSON()}
             };
         createTypeAheadLists();
         updateRowsFromLocalStorage(true);
@@ -304,7 +466,6 @@
                       date       : dateOfEntry,
                       description: row.description,
                       location   : row.location1.split(' - ')[0],
-                      role       : row.location2.split(' - ')[0],
                       duration   : duration,
                       baseWBS    : baseWBS[3]
                     },
