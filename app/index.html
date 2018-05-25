@@ -51,7 +51,7 @@
         <thead>
           <tr class="info">
               <th colspan="2" style="width:8em;">Timer</th>
-              <th rowspan="2" style="padding-bottom: 25px; width:10em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);"><i ng-if="!isAscending" class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width:10em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);" tooltip="sort rows in ascending order"><i class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th> 
               <th rowspan="2" style="padding-bottom: 25px; width:8em;">Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
               <th rowspan="2" style="padding-bottom: 25px; width:8em;">Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
               <th rowspan="2" style="padding-bottom: 25px; width: 1em">Location <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
@@ -95,7 +95,7 @@
           <span ng-show="row.removable" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1" ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
         </td>
         <td style="width:6.5em">
-          <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
+          <stopwatch ng-show="row.timer" elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
                      start-time="row._startTime" running="row._running">
           </stopwatch>
         </td>
