@@ -20,7 +20,6 @@
         };
 
         $scope.callbackToggleFactory = function (row) {
-          debugger;
           return function (stopped, oldTime, newTime, clear) {
             if(clear) { clearStEt(row); return true; }
             var weekday = weekdays[(new Date()).getDay()];
