@@ -73,6 +73,7 @@ angular.module('gteApp')
         };
 
         self.cancelTimer = function () {
+          debugger;
           $interval.cancel(interval);
           options.running = null;
           options.elapsedTimeInternal = options.elapsedTime;
