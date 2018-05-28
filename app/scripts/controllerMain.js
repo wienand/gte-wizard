@@ -18,12 +18,85 @@
           saveInProgress: false,
           hideWeekend: $location.search()['hideWeekend'] === '1'
         };
+
         $scope.callbackToggleFactory = function (row) {
-          return function (stopped, oldTime, newTime) {
+          return function (stopped, oldTime, newTime, clear) {
+            if(clear) { clearStEt(row); return true; }
             var weekday = weekdays[(new Date()).getDay()];
             row[weekday] += newTime - oldTime;
             row.totalTime = newTime;
+            if(stopped !== null && stopped !== true)
+            {
+              addSameEngagement(row, weekday);
+              return true;
+            }
+            else if(stopped === null && stopped !== true)
+            {
+              var startTime = weekday + 'St';
+              row[startTime] = timeNow();
+              return false;
+            }
+            else
+            {
+              var endTime = weekday + 'Et';
+              row[endTime] = timeNow();
+              return false;
+            } 
           };
+        };
+        var clearStEt = function(row)
+        {
+          var weekday = weekdays[(new Date()).getDay()];
+          var startTime = weekday + 'St';
+          var endTime = weekday + 'Et';
+          row[startTime] = "00:00";
+          row[endTime] = "00:00";
+        }
+
+        var timeNow = function() {
+          var date = new Date(),
+              hours = (date.getHours()<10?'0':'') + date.getHours(),
+              minutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
+          return hours + ':' + minutes
+        }
+        var addSameEngagement = function(row, weekday)
+        {
+          var d = new Date();
+          var newRow = {
+            _startTime : d.getTime(),
+            _running   : true,
+            timer      : true,
+            totalTime  : 0,
+            removable  : row.removable,
+            engagement : row.engagement,
+            activity   : row.activity,
+            description: row.description,
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || row.location1,
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
+            saturdaySt   : weekday == "saturday" ? timeNow() : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : weekday == "sunday" ? timeNow() : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : weekday == "monday" ? timeNow() : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : weekday == "tuesday" ? timeNow() : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : weekday == "wednesday" ? timeNow() : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : weekday == "thursday" ? timeNow() : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : weekday == "friday" ? timeNow() : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          $scope.rowsForGTE.push(newRow);
+          addWatchesForRow(newRow);
         };
 
         $scope.getTotalFor = function (rows, field) {
@@ -80,12 +153,14 @@
           var newRow = {
             _startTime : null,
             _running   : null,
+            timer      : true,
             totalTime  : 0,
             removable  : true,
             engagement : "",
             activity   : '0000 - General',
             description: '',
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH-OT',
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
             saturdaySt   : "00:00",
             saturdayEt   : "00:00",
             saturday     : 0,
@@ -123,21 +198,31 @@
           return sum;
         }
 
-        $scope.sortEngagement = function(rows) {         
-          if(isAscending)
-          {
-            var engList = _.sortBy(rows, "engagement");
-            isAscending = false;
-          }
-          else
-          {
-            var engList = _.sortBy(rows, "engagement");
-            engList.reverse();
-            isAscending = true;
-          }          
-          $scope.rowsForGTE = engList;
-          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);          
-        }
+        var orderByProperty = function(prop) {  
+          var args = Array.prototype.slice.call(arguments, 1);  
+          return function (a, b) {  
+          var equality;  
+          if (typeof a[prop] === 'string' && typeof b[prop] === 'string') {  
+            if (a[prop] < b[prop]) {  
+                equality = -1;  
+              } else if (a[prop] > b[prop]) {  
+                equality = 1;  
+              } else {  
+                equality = 0;  
+              }  
+            } else {  
+              equality = b[prop] - a[prop];  
+            }  
+           if (equality === 0 && arguments.length > 1) {  
+              return orderByProperty.apply(null, args)(a, b);  
+            }  
+          return equality;  
+          };  
+        }          
+        $scope.sortEngagement = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('engagement', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);  
+        };
 
         $scope.roundRow = function (row, rowOfSameGroup) {
           var remainder = 0;
@@ -266,12 +351,14 @@
           var morningBreak = {
             _startTime : null,
             _running   : null,
+            timer      : true,
             totalTime  : 0,
             removable  : false,
             engagement : "A-CH010026",
             activity   : "AMBR",
             description: "Morning Break",
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
             saturdaySt   : "00:00",
             saturdayEt   : "00:00",
             saturday     : 0,
@@ -297,12 +384,14 @@
           var lunchBreak = {
             _startTime : null,
             _running   : null,
+            timer      : true,
             totalTime  : 0,
             removable  : false,
             engagement : "A-CH010026",
             activity   : "LNCH",
             description: "Lunch Break",
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
             saturdaySt   : "00:00",
             saturdayEt   : "00:00",
             saturday     : 0,
@@ -328,12 +417,14 @@
           var eveningBreak = {
             _startTime : null,
             _running   : null,
+            timer      : true,
             totalTime  : 0,
             removable  : false,
             engagement : "A-CH010026",
             activity   : "PMBR",
             description: "Afternoon Break",
             location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
             saturdaySt   : "00:00",
             saturdayEt   : "00:00",
             saturday     : 0,
@@ -422,7 +513,8 @@
               engagement : {},
               activity   : {'0000-General': new Date().toJSON()},
               description: {},
-              location1  : {'CH-OT': new Date().toJSON()}
+              location1  : {'CH-OT': new Date().toJSON() },
+              location2  : {'REG': new Date().toJSON() }
             };
         createTypeAheadLists();
         updateRowsFromLocalStorage(true);
@@ -466,6 +558,7 @@
                       date       : dateOfEntry,
                       description: row.description,
                       location   : row.location1.split(' - ')[0],
+                      role       : row.location2.split(' - ')[0],
                       duration   : duration,
                       baseWBS    : baseWBS[3]
                     },

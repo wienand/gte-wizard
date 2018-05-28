@@ -51,7 +51,7 @@
         <thead>
           <tr class="info">
               <th colspan="2" style="width:8em;">Timer</th>
-              <th rowspan="2" style="padding-bottom: 25px; width:10em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);"><i ng-if="!isAscending" class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+              <th rowspan="2" style="padding-bottom: 25px; width:10em;"><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);" tooltip="sort rows in ascending order"><i class="glyphicon glyphicon-sort"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th> 
               <th rowspan="2" style="padding-bottom: 25px; width:8em;">Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
               <th rowspan="2" style="padding-bottom: 25px; width:8em;">Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
               <th rowspan="2" style="padding-bottom: 25px; width: 1em">Location <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
@@ -95,7 +95,7 @@
           <span ng-show="row.removable" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1" ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
         </td>
         <td style="width:6.5em">
-          <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
+          <stopwatch ng-show="row.timer" elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
                      start-time="row._startTime" running="row._running">
           </stopwatch>
         </td>
@@ -126,20 +126,20 @@
         </td>
 
 
-        <td class="weekday"><input type="text" ng-model="row.mondaySt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.mondayEt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.tuesdaySt" ng-change="setValidTime(row.tuesdaySt, row.tuesdayEt, row, 'tuesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.tuesdayEt" ng-change="setValidTime(row.tuesdaySt, row.tuesdayEt, row, 'tuesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.wednesdaySt" ng-change="setValidTime(row.wednesdaySt, row.wednesdayEt, row, 'wednesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.wednesdayEt" ng-change="setValidTime(row.wednesdaySt, row.wednesdayEt, row, 'wednesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.thursdaySt" ng-change="setValidTime(row.thursdaySt, row.thursdayEt, row, 'thursday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.thursdayEt" ng-change="setValidTime(row.thursdaySt, row.thursdayEt, row, 'thursday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.fridaySt" ng-change="setValidTime(row.fridaySt, row.fridayEt, row, 'friday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday"><input type="text" ng-model="row.fridayEt" ng-change="setValidTime(row.fridaySt, row.fridayEt, row, 'friday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.saturdaySt" ng-change="setValidTime(row.saturdaySt, row.saturdayEt, row, 'saturday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.saturdayEt" ng-change="setValidTime(row.saturdaySt, row.saturdayEt, row, 'saturday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.sundaySt" ng-change="setValidTime(row.sundaySt, row.sundayEt, row, 'sunday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>
-        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.sundayEt" ng-change="setValidTime(row.sundaySt, row.sundayEt, row, 'sunday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00.00"  style="width: 100%"></td>        
+        <td class="weekday"><input type="text" ng-model="row.mondaySt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.mondayEt" ng-change="setValidTime(row.mondaySt, row.mondayEt, row, 'monday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.tuesdaySt" ng-change="setValidTime(row.tuesdaySt, row.tuesdayEt, row, 'tuesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.tuesdayEt" ng-change="setValidTime(row.tuesdaySt, row.tuesdayEt, row, 'tuesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.wednesdaySt" ng-change="setValidTime(row.wednesdaySt, row.wednesdayEt, row, 'wednesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.wednesdayEt" ng-change="setValidTime(row.wednesdaySt, row.wednesdayEt, row, 'wednesday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.thursdaySt" ng-change="setValidTime(row.thursdaySt, row.thursdayEt, row, 'thursday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.thursdayEt" ng-change="setValidTime(row.thursdaySt, row.thursdayEt, row, 'thursday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.fridaySt" ng-change="setValidTime(row.fridaySt, row.fridayEt, row, 'friday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday"><input type="text" ng-model="row.fridayEt" ng-change="setValidTime(row.fridaySt, row.fridayEt, row, 'friday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.saturdaySt" ng-change="setValidTime(row.saturdaySt, row.saturdayEt, row, 'saturday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.saturdayEt" ng-change="setValidTime(row.saturdaySt, row.saturdayEt, row, 'saturday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.sundaySt" ng-change="setValidTime(row.sundaySt, row.sundayEt, row, 'sunday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>
+        <td class="weekday" ng-hide="state.hideWeekend"><input type="text" ng-model="row.sundayEt" ng-change="setValidTime(row.sundaySt, row.sundayEt, row, 'sunday')"  ng-pattern="/^(?:(?:[0-1][0-9]|2[0-3]|0):[0-5][0-9])?$/" tooltip="00:00"  style="width: 100%"></td>        
         <td style="text-align:center">
           {{ getEngagementTotla(row) | number : 1 }}
             <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
