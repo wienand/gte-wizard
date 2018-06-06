@@ -38,12 +38,10 @@ angular.module('gteApp')
             callback = options.toggleCallback();
 
         self.toggleTimer = function () {
-          callback(options.running, options.elapsedTime, options.elapsedTimeInternal);
-          if (options.running) {
-            self.stopTimer();
-          } else {
-            self.startTimer();
-          }
+          var myStop = callback(options.running, options.elapsedTime, options.elapsedTimeInternal, false);
+          if (options.running) { self.stopTimer(); }
+          else if(myStop) { self.stopTimer(); }
+          else { self.startTimer(); }
         };
 
         self.updateTime = function () {
@@ -76,8 +74,9 @@ angular.module('gteApp')
 
         self.cancelTimer = function () {
           $interval.cancel(interval);
-          options.running = false;
+          options.running = null;
           options.elapsedTimeInternal = options.elapsedTime;
+          callback(options.running, options.elapsedTime, options.elapsedTimeInternal, true);
         };
 
         return self;
@@ -118,7 +117,7 @@ angular.module('gteApp')
             '<i ng-show="running" class="glyphicon glyphicon-pause" tooltip="stop timer and add {{elapsedTimeInternal - elapsedTime | number:1}} hours"></i>' +
             '<i ng-hide="running" class="glyphicon glyphicon-play"></i>' +
             '</span>'+
-            '<span ng-click="cancelTimer()" tooltip="cancel timer and return to {{elapsedTime | number:1}} hours">' +
+            '<span ng-click="cancelTimer();" tooltip="cancel timer and return to {{elapsedTime | number:1}} hours">' +
             '<i ng-show="running" class="glyphicon glyphicon-step-backward"></i>' +
             '</span>',
         link      : function (scope, iElement, iAttrs, controller) {

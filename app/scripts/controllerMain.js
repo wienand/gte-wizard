@@ -1,11 +1,12 @@
 (function () {
   'use strict';
   /* global _, angular, console, moment, alert, confirm */
-
+  var isAscending = true;
   angular.module('gteApp')
       .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+            weekdaysTimeForGET = ['saturday', 'saturdaySt', 'saturdayEt', 'sunday', 'sundaySt', 'sundayEt', 'monday', 'mondaySt', 'mondayEt', 'tuesday', 'tuesdaySt', 'tuesdayEt', 'wednesday', 'wednesdaySt', 'wednesdayEt', 'thursday', 'thursdaySt', 'thursdayEt', 'friday', 'fridaySt', 'fridayEt'],
             chargeTypes = {
               A: 'Absences',
               C: 'Cost center',
@@ -17,25 +18,104 @@
           saveInProgress: false,
           hideWeekend: $location.search()['hideWeekend'] === '1'
         };
+
         $scope.callbackToggleFactory = function (row) {
-          return function (stopped, oldTime, newTime) {
+          return function (stopped, oldTime, newTime, clear) {
+            if(clear) { clearStEt(row); return true; }
             var weekday = weekdays[(new Date()).getDay()];
             row[weekday] += newTime - oldTime;
-            row.totalTime = newTime;
+            row.totalTime = parseFloat(newTime.toFixed(2));
+            if(stopped !== null && stopped !== true)
+            {
+              addSameEngagement(row, weekday);
+              return true;
+            }
+            else if(stopped === null && stopped !== true)
+            {
+              var startTime = weekday + 'St';
+              row[startTime] = timeNow();
+              return false;
+            }
+            else
+            {
+              var endTime = weekday + 'Et';
+              row[endTime] = timeNow();
+              return false;
+            } 
           };
         };
+        var clearStEt = function(row)
+        {
+          var weekday = weekdays[(new Date()).getDay()];
+          var startTime = weekday + 'St';
+          var endTime = weekday + 'Et';
+          row[startTime] = "00:00";
+          row[endTime] = "00:00";
+        }
+
+        var timeNow = function() {
+          var date = new Date(),
+              hours = (date.getHours()<10?'0':'') + date.getHours(),
+              minutes = (date.getMinutes()<10?'0':'') + date.getMinutes();
+          return hours + ':' + minutes
+        }
+        var addSameEngagement = function(row, weekday)
+        {
+          var d = new Date();
+          var newRow = {
+            _startTime : d.getTime(),
+            _running   : true,
+            timer      : true,
+            totalTime  : 0,
+            removable  : row.removable,
+            engagement : row.engagement,
+            activity   : row.activity,
+            description: row.description,
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || row.location1,
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
+            saturdaySt   : weekday == "saturday" ? timeNow() : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : weekday == "sunday" ? timeNow() : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : weekday == "monday" ? timeNow() : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : weekday == "tuesday" ? timeNow() : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : weekday == "wednesday" ? timeNow() : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : weekday == "thursday" ? timeNow() : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : weekday == "friday" ? timeNow() : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          $scope.rowsForGTE.push(newRow);
+          addWatchesForRow(newRow);
+        };
+
         $scope.getTotalFor = function (rows, field) {
           return _.reduce(_.pluck(_.filter(rows, function (row) {
             return !row.engagement || (row.engagement.charAt(0) !== 'X');
-          }), field), function (sum, el) {
+          }), field), function (sum, el) {          
             return sum + el;
           }, 0);
         };
+        $scope.setValidTime = function(strTime, endTime, row, property)
+        {
+          getValidTime(strTime, endTime, row, property);
+        }
+   
         $scope.getTotalDiff = function (rows) {
           var totalDiff = 0;
           _.forEach(rows, function (row) {
             if (!row.engagement || (row.engagement.charAt(0) !== 'X')) {
-              totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime;
+              totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - parseFloat(row.totalTime).toFixed(2);
             }
           });
           return totalDiff;
@@ -57,7 +137,7 @@
               chargeType = chargeTypes[row.engagement.charAt(0)] || row.engagement.charAt(0);
             }
             totalByType[chargeType] = totalByType[chargeType] || 0;
-            totalByType[chargeType] += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+            totalByType[chargeType] += getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
           });
           return totalByType;
         };
@@ -68,32 +148,95 @@
             $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
           }
         };
+
         $scope.addRow = function () {
           var newRow = {
             _startTime : null,
             _running   : null,
+            timer      : true,
             totalTime  : 0,
-            engagement : '',
+            removable  : true,
+            engagement : "",
             activity   : '0000 - General',
             description: '',
-            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'DE',
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || 'CH-OT',
             location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
-            saturday   : 0,
-            sunday     : 0,
-            monday     : 0,
-            tuesday    : 0,
-            wednesday  : 0,
-            thursday   : 0,
-            friday     : 0
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
           };
           $scope.rowsForGTE.push(newRow);
-          addWatchesForRow(newRow);
+           addWatchesForRow(newRow);
         };
         $scope.swapRows = function (rows, indexA, indexB) {
           var tmp = rows[indexA];
           rows[indexA] = rows[indexB];
           rows[indexB] = tmp;
         };
+
+        $scope.getEngagementTotla = function(row)
+        {
+          var sum = getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
+          return sum;
+        }
+
+        function orderByProperty(prop) {  
+          var args = Array.prototype.slice.call(arguments, 1);  
+          return function (a, b) {  
+          var equality;  
+          if (typeof a[prop] === 'string' && typeof b[prop] === 'string') {  
+            if (a[prop] < b[prop]) {  
+                equality = -1;  
+              } else if (a[prop] > b[prop]) {  
+                equality = 1;  
+              } else {  
+                equality = 0;  
+              }  
+            } else {  
+              equality = b[prop] - a[prop];  
+            }  
+           if (equality === 0 && arguments.length > 1) {  
+              return orderByProperty.apply(null, args)(a, b);  
+            }  
+          return equality;  
+          };  
+        }          
+        $scope.sortEngagement = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('engagement', 'activity', 'description', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+          $window.localStorage.timesheetChangeUUID = localChangeUUID;
+        };
+
+        $scope.sortActivity = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('activity', 'engagement', 'description', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+          $window.localStorage.timesheetChangeUUID = localChangeUUID;
+        };
+
+        $scope.sortDescription = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('description', 'engagement', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+          $window.localStorage.timesheetChangeUUID = localChangeUUID;  
+        };
+
         $scope.roundRow = function (row, rowOfSameGroup) {
           var remainder = 0;
           row._lastDayWithValues = null;
@@ -137,12 +280,10 @@
           if (confirm('Set all hours to zero?\n\nATTENTION: Data cannot be recovered afterwards!')) {
             _.forEach(rows, function (row) {
               if (!row.engagement || row.engagement.charAt(0) !== 'X') {
-                _.forEach(weekdaysForGTE, function (weekday) {
-                  if (row[weekday] > 0) {
-                    row[weekday] = 0;
-                  }
+                _.forEach(weekdaysTimeForGET, function (weekday) {
+                  row[weekday] = "00:00";
                 });
-                row.totalTime = row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
+                row.totalTime = getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null);
               }
             });
           }
@@ -166,7 +307,21 @@
             });
           }
         };
+        var getValidTime = function(startTime, endTime, row, prop)
+        {
+          var sTime = moment(startTime, "hh:mm");
+          var eTime = moment(endTime, "hh:mm");
 
+          if(row !== null)
+          {
+            _.each(row, function(value, key) {
+              if(key == prop) {
+                row[key] = parseFloat(moment.duration(eTime.diff(sTime)).hours() + (moment.duration(eTime.diff(sTime)).minutes() / 60));
+              }
+            });
+          }
+          return parseFloat(moment.duration(eTime.diff(sTime)).hours() + (moment.duration(eTime.diff(sTime)).minutes() / 60));
+        }
         var guid = function () {
           var s4 = function () {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -205,8 +360,120 @@
           }));
         };
 
+        var defaultBreakRows = function () {
+          var morningBreak = {
+            _startTime : null,
+            _running   : null,
+            timer      : true,
+            totalTime  : 0,
+            removable  : false,
+            engagement : "A-CH010026",
+            activity   : "AMBR",
+            description: "Morning Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          var lunchBreak = {
+            _startTime : null,
+            _running   : null,
+            timer      : true,
+            totalTime  : 0,
+            removable  : false,
+            engagement : "A-CH010026",
+            activity   : "LNCH",
+            description: "Lunch Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          var eveningBreak = {
+            _startTime : null,
+            _running   : null,
+            timer      : true,
+            totalTime  : 0,
+            removable  : false,
+            engagement : "A-CH010026",
+            activity   : "PMBR",
+            description: "Afternoon Break",
+            location1  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location1) || "CH-OT",
+            location2  : ($scope.rowsForGTE && ($scope.rowsForGTE.length > 0) && $scope.rowsForGTE[0].location2) || 'REG',
+            saturdaySt   : "00:00",
+            saturdayEt   : "00:00",
+            saturday     : 0,
+            sundaySt     : "00:00",
+            sundayEt     : "00:00",
+            sunday       : 0,
+            mondaySt     : "00:00",
+            mondayEt     : "00:00",
+            monday       : 0,
+            tuesdaySt    : "00:00",
+            tuesdayEt    : "00:00",
+            tuesday      : 0,
+            wednesdaySt  : "00:00",
+            wednesdayEt  : "00:00",
+            wednesday    : 0,
+            thursdaySt   : "00:00",
+            thursdayEt   : "00:00",
+            thursday     : 0,
+            fridaySt     : "00:00",
+            fridayEt     : "00:00",
+            friday       : 0
+          };
+          if($scope.rowsForGTE.length === 0)
+          {
+            $scope.rowsForGTE.push(morningBreak);                 
+            $scope.rowsForGTE.push(lunchBreak);                     
+            $scope.rowsForGTE.push(eveningBreak);
+            addWatchesForRow(lunchBreak); 
+            addWatchesForRow(morningBreak);     
+            addWatchesForRow(eveningBreak);
+          }
+      }
+
         var updateRowsFromLocalStorage = function (calledInScope) {
           $scope.rowsForGTE = JSON.parse($window.localStorage.rowsForGTE || null) || $scope.rowsForGTE || [];
+          defaultBreakRows();
           while (watches.length > 0) {
             var watch = watches.pop();
             watch();
@@ -257,10 +524,10 @@
         $scope.typeaheadLastUsed = JSON.parse($window.localStorage.typeahead || null) ||
             {
               engagement : {},
-              activity   : {'0000 - General': new Date().toJSON()},
+              activity   : {'0000-General': new Date().toJSON()},
               description: {},
-              location1  : {'DE': new Date().toJSON()},
-              location2  : {'REG': new Date().toJSON()}
+              location1  : {'CH-OT': new Date().toJSON() },
+              location2  : {'REG': new Date().toJSON() }
             };
         createTypeAheadLists();
         updateRowsFromLocalStorage(true);
@@ -297,16 +564,17 @@
               var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
                   weekdayOfEntry = weekdaysForGTE.indexOf(weekday),
                   dateOfEntry = moment(refMoment.startOf('week')).add(weekdayOfEntry - 1, 'days').format('YYYYMMDD'),
-                  baseWBS = row.engagement.match(findEngagementRE);
+                  baseWBS = row.engagement.match(findEngagementRE),
+                  description = row.description + '[' + row[weekday + 'St'] + '-' + row[weekday + 'Et'] + ']';
 
               if ((Math.abs(duration) > 0) && baseWBS) {
                 var entry = {
-                      date       : dateOfEntry,
-                      description: row.description,
-                      location   : row.location1.split(' - ')[0],
-                      role       : row.location2.split(' - ')[0],
-                      duration   : duration,
-                      baseWBS    : baseWBS[3]
+                      date        : dateOfEntry,
+                      description : description,
+                      location    : row.location1.split(' - ')[0],
+                      role        : row.location2.split(' - ')[0],
+                      duration    : duration,
+                      baseWBS     : baseWBS[3]
                     },
                     activity = row.activity.split(' - ')[0];
                 if (activity.indexOf(':') > -1) {
@@ -323,6 +591,7 @@
           });
           return {rows: dataForMercury, detailDate: refMoment.format('ddd MMM DD YYYY').replace(/ /g, '%20') + 'offset6'};
         };
+
         $scope.jsonForMercuryAsText = function (rows, refMoment) {
           return JSON.stringify($scope.jsonForMercury(rows, refMoment, true));
         };
