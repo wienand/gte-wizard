@@ -120,7 +120,6 @@
           });
           return totalDiff;
         };
-
         $scope.getTotal = function (rows) {
           var total = 0;
           _.forEach(rows, function (row) {
@@ -199,7 +198,7 @@
           return sum;
         }
 
-        var orderByProperty = function(prop) {  
+        function orderByProperty(prop) {  
           var args = Array.prototype.slice.call(arguments, 1);  
           return function (a, b) {  
           var equality;  
@@ -220,9 +219,22 @@
           return equality;  
           };  
         }          
-        $scope.sortEngagement = function (rows) {
-          $scope.rowsForGTE = rows.sort(orderByProperty('engagement', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
-          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);  
+        $scope.sortEngagement = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('engagement', 'activity', 'description', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+          $window.localStorage.timesheetChangeUUID = localChangeUUID;
+        };
+
+        $scope.sortActivity = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('activity', 'engagement', 'description', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+          $window.localStorage.timesheetChangeUUID = localChangeUUID;
+        };
+
+        $scope.sortDescription = function (rows) {  
+          $scope.rowsForGTE = rows.sort(orderByProperty('description', 'engagement', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+          $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+          $window.localStorage.timesheetChangeUUID = localChangeUUID;  
         };
 
         $scope.roundRow = function (row, rowOfSameGroup) {
@@ -552,16 +564,17 @@
               var duration = Math.ceil((Math.max(row[weekday], 0) || 0) * 10) / 10,
                   weekdayOfEntry = weekdaysForGTE.indexOf(weekday),
                   dateOfEntry = moment(refMoment.startOf('week')).add(weekdayOfEntry - 1, 'days').format('YYYYMMDD'),
-                  baseWBS = row.engagement.match(findEngagementRE);
+                  baseWBS = row.engagement.match(findEngagementRE),
+                  description = row.description + '[' + row[weekday + 'St'] + '-' + row[weekday + 'Et'] + ']';
 
               if ((Math.abs(duration) > 0) && baseWBS) {
                 var entry = {
-                      date       : dateOfEntry,
-                      description: row.description,
-                      location   : row.location1.split(' - ')[0],
-                      role       : row.location2.split(' - ')[0],
-                      duration   : duration,
-                      baseWBS    : baseWBS[3]
+                      date        : dateOfEntry,
+                      description : description,
+                      location    : row.location1.split(' - ')[0],
+                      role        : row.location2.split(' - ')[0],
+                      duration    : duration,
+                      baseWBS     : baseWBS[3]
                     },
                     activity = row.activity.split(' - ')[0];
                 if (activity.indexOf(':') > -1) {
@@ -578,6 +591,7 @@
           });
           return {rows: dataForMercury, detailDate: refMoment.format('ddd MMM DD YYYY').replace(/ /g, '%20') + 'offset6'};
         };
+
         $scope.jsonForMercuryAsText = function (rows, refMoment) {
           return JSON.stringify($scope.jsonForMercury(rows, refMoment, true));
         };
