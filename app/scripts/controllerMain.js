@@ -24,7 +24,7 @@
             if(clear) { clearStEt(row); return true; }
             var weekday = weekdays[(new Date()).getDay()];
             row[weekday] += newTime - oldTime;
-            row.totalTime = newTime;
+            row.totalTime = parseFloat(newTime.toFixed(2));
             if(stopped !== null && stopped !== true)
             {
               addSameEngagement(row, weekday);
@@ -115,16 +115,17 @@
           var totalDiff = 0;
           _.forEach(rows, function (row) {
             if (!row.engagement || (row.engagement.charAt(0) !== 'X')) {
-              totalDiff += (getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null) - row.totalTime);
+              totalDiff += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - parseFloat(row.totalTime).toFixed(2);
             }
           });
           return totalDiff;
         };
+
         $scope.getTotal = function (rows) {
           var total = 0;
           _.forEach(rows, function (row) {
             if (!row.engagement || (row.engagement.charAt(0) !== 'X')) {
-              total += (getValidTime(row.saturdaySt, row.saturdayEt, null, null) + getValidTime(row.sundaySt, row.sundayEt, null, null) + getValidTime(row.mondaySt, row.mondayEt, null, null) + getValidTime(row.tuesdaySt, row.tuesdayEt, null, null) + getValidTime(row.wednesdaySt, row.wednesdayEt, null, null) + getValidTime(row.thursdaySt, row.thursdayEt, null, null) + getValidTime(row.fridaySt, row.fridayEt, null, null));
+              total += row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday;
             }
           });
           return total;
@@ -219,7 +220,7 @@
           return equality;  
           };  
         }          
-        $scope.sortEngagement = function (rows) {  
+        $scope.sortEngagement = function (rows) {
           $scope.rowsForGTE = rows.sort(orderByProperty('engagement', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
           $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);  
         };
@@ -302,7 +303,7 @@
           if(row !== null)
           {
             _.each(row, function(value, key) {
-              if(key === prop) {
+              if(key == prop) {
                 row[key] = parseFloat(moment.duration(eTime.diff(sTime)).hours() + (moment.duration(eTime.diff(sTime)).minutes() / 60));
               }
             });

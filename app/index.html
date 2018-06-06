@@ -192,8 +192,8 @@
         <th colspan="2" style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
         <th colspan="2" style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'saturday') | number:1}}</th>
         <th colspan="2" style="text-align:center" class="weekend" ng-hide="state.hideWeekend">{{getTotalFor(rowsForGTE, 'sunday') | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotal(rowsForGTE) | number:1}}</th>
-        <th style="text-align:center" class="weekday">{{getTotalDiff(rowsForGTE) | number:2}}</th>
+        <th style="text-align:center" class="weekday">{{ getTotal(rowsForGTE) | number:1 }}</th>
+        <th style="text-align:center" class="weekday">{{ getTotalDiff(rowsForGTE) | number:2 }}</th>
       </tr>
       </tfoot>
     </table>
