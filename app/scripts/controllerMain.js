@@ -1,7 +1,8 @@
 (function () {
   'use strict';
-  /* global _, angular, console, moment, alert, confirm */  angular.module('gteApp')
-      .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
+  /* global _, angular, console, moment, alert, confirm */
+    angular.module('gteApp')
+        .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
             chargeTypes = {
