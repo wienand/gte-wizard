@@ -1,6 +1,12 @@
 (function () {
   'use strict';
+<<<<<<< HEAD
   /* global _, angular, console, moment, alert, confirm */  angular.module('gteApp')
+=======
+  /* global _, angular, console, moment, alert, confirm */
+
+  angular.module('gteApp')
+>>>>>>> parent of 62f35f6... Latest Changes to the Swis Timesheet Plus Code
       .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
