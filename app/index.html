@@ -27,29 +27,33 @@
 <body ng-app="gteApp">
 
 <div ng-controller="TimesheetCtrl" class="container-fluid ng-cloak">
-  <div ng-show="onTopOfMercury" style="text-align: right; width:100%;margin-top:-20px;">
-    <span class="pull-left">Running on top of Mercury, <a ng-click="closeOverlay()">return to native timesheet</a>.</span>
-    Please direct feedback, problem reports and suggestion to <a href="mailto:gsa.tax.mercury@de.ey.com?subject=Timesheet Plus: ">GSA Tax moves to Mercury</a>. Thank you.
+  <div class="row" ng-show="onTopOfMercury && detectIE" style="margin-top: -20px; background-color: red; margin-bottom: 45px">
+    <div style="text-align: center">
+      <h1>Due to current bugs in IE11, please use export button in timesheet application and then the import bookmarklet or use another browser, like Chrome from
+          the <a href="https://appstore.ey.net/">EY AppStore</a>.</h1>
+    </div>
+  </div>
+  <div class="row" ng-show="onTopOfMercury" style="margin-top: -20px; background-color: #ffe600">
+    <div style="text-align: center">
+      <button ng-click="importToMercury(rowsForGTE)" style="width: 30%; margin-right: 10%; margin-top:15px; margin-bottom: 15px" class="btn btn-primary">
+        Transfer hours to Mercury
+      </button>
+      <button ng-click="printTimesheet()" style="width: 30%; margin-right: 10%" class="btn btn-primary">Print timesheet as currently recorded in Mercury</button>
+      <button ng-click="closeOverlay()" style="width: 15%" class="btn btn-danger">Close</button>
+    </div>
+  </div>
+  <div ng-hide="onTopOfMercury" style="text-align: right; width:100%;margin-top:-20px;">Please direct feedback, problem reports and suggestion to <a
+      href="mailto:gsa.tax.mercury@de.ey.com?subject=Timesheet Plus: ">GSA Tax moves to Mercury</a>. Thank you.
     <a href="https://share.ey.net/sites/TimesheetPlus" target="_blank">Help & Instructions</a>
   </div>
-  <div ng-show="onTopOfMercury" class="row">
+  <div class="row">
     <table class="table table-bordered table-striped">
       <thead>
       <tr class="info">
-        <th colspan="14" style="text-align: center">
-          <span ng-click="refMomentForExport.add(-1, 'week'); loadInitialMercuryData(refMomentForExport)" style="cursor: pointer" class="pull-left">
-            <i class="glyphicon glyphicon-arrow-left"></i>
-          </span>
-          Timesheet for week starting on {{refMomentForExport.format('YYYY-MM-DD (dddd)')}}, i.e. {{refMomentForExport.fromNow()}}
-          <span ng-click="refMomentForExport.add(1, 'week'); loadInitialMercuryData(refMomentForExport)" style="cursor: pointer" class="pull-right">
-            <i class="glyphicon glyphicon-arrow-right"></i>
-          </span>
-        </th>
-      </tr>
-      <tr class="info">
-        <th style="width: 1px"></th>
-        <th colspan="2">WBS element <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
-        <th>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th colspan="2">Timer</th>
+        <th><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortEngagement(rowsForGTE);" tooltip="sort rows in ascending order"><i class="glyphicon glyphicon-sort-by-attributes"></i></span>Engagement <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th> 
+        <th><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortActivity(rowsForGTE);" tooltip="sort rows in ascending order"><i class="glyphicon glyphicon-sort-by-attributes"></i></span>Activity <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
+        <th><span style="cursor: pointer;margin-right:0.5em;" ng-click="sortDescription(rowsForGTE);" tooltip="sort rows in ascending order"><i class="glyphicon glyphicon-sort-by-attributes"></i></span>Description <span ng-click="editTypeaheadEntries = !editTypeaheadEntries" style="cursor: pointer"><i class="glyphicon glyphicon-wrench"></i></span></th>
         <th style="width: 5em">Loc</th>
         <th style="width: 5em">Role</th>
         <th class="weekend" style="width: 5em" ng-hide="state.hideWeekend">Sat</th>
@@ -65,94 +69,58 @@
             <i class="glyphicon glyphicon-transfer"></i>
           </span>
         </th>
-        <!-- <th style="width: 5.5em">Delta</th> -->
+        <th style="width: 5.5em">Delta</th>
       </tr>
       </thead>
       <tbody>
       <tr ng-repeat="row in rowsForGTE">
-        <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="{{row.mercury.updating?'synching with Mercury':'remove row'}}" tooltip-placement="right" tooltip-append-to-body="1">
-          <span ng-hide="row.mercury.updating" ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
-          <span ng-show="row.mercury.updating" style="cursor: progress"><i class="glyphicon glyphicon-refresh"></i></span>
+        <td style="vertical-align: middle; text-align: center; width: 1px;" tooltip="remove row" tooltip-placement="right" tooltip-append-to-body="1">
+          <span ng-click="rowsForGTE.splice($index, 1)" style="cursor: pointer"><i class="glyphicon glyphicon-remove"></i></span>
         </td>
-        <!--
         <td style="width:7.5em">
           <stopwatch elapsed-time="row.totalTime" toggle-callback="callbackToggleFactory(row, 'totalTime')"
                      start-time="row._startTime" running="row._running">
           </stopwatch>
         </td>
-        -->
-        <td colspan="2">
+        <td>
           <ng-form name="engagementForm">
-            <div ng-class="getEngagementCellStatus(row.engagement, row.mercury.WBS)" style="margin: -4px; padding: 4px;">
-              <input name="engagement" type="text" ng-model="row.engagement" ng-pattern="/^(.*(\s|[\(]))?\w-\w{8}-[\w@]{4}((\s|[\)]).*)?$/" required
-                     typeahead="engagement for engagement in typeahead.engagement | filter:$viewValue | limitTo:8" style="width: 100%">
-                <span ng-show="engagementForm.engagement.$error.pattern && (engagementForm.engagement.$viewValue.length > 12)">
-                  <b>X-XXXXXXXX-XXXX - Description</b>
-                </span>
-            </div>
+            <input name="engagement" type="text" ng-model="row.engagement" ng-pattern="/^(.*(\s|[\(]))?\w-\w{8}((\s|[\)]).*)?$/" required
+                   typeahead="engagement for engagement in typeahead.engagement | filter:$viewValue | limitTo:8" style="width: 100%">
+              <span ng-show="engagementForm.engagement.$error.pattern && (engagementForm.engagement.$viewValue.length > 12)">
+                <b>X-XXXXXXXX - Description</b>
+              </span>
+          </ng-form>
+        </td>
+        <td>
+          <ng-form name="activityForm">
+            <input name="activity" type="text" ng-model="row.activity" ng-pattern="/^[\w@]{4}(:[\w@]{4})?( - .*)?$/" required
+                   typeahead="activity for activity in typeahead.activity | filter:$viewValue | limitTo:8" style="width: 100%">
+              <span ng-show="activityForm.activity.$error.pattern && (activityForm.activity.$viewValue.length > 6)">
+                <b>XXXX - Description</b> or <b>YYYY:XXXX - Description</b>,<br>eg. with YYYY = PATT or ACTT
+              </span>
           </ng-form>
         </td>
         <td tooltip-append-to-body="1" tooltip="{{row.description}}" tooltip-placement="left">
-          <div ng-class="getTextCellStatus(row.description, row.mercury.description)" style="margin: -4px; padding: 4px;">
-            <input resize-input-to-length type="text" ng-model="row.description"
-                   typeahead="description for description in typeahead.description | filter:$viewValue | limitTo:8" style="width: 100%">
-          </div>
+          <input resize-input-to-length type="text" ng-model="row.description"
+                 typeahead="description for description in typeahead.description | filter:$viewValue | limitTo:8" style="width: 100%">
         </td>
-        <td>
-          <div ng-class="getTextCellStatus(row.location1, row.mercury.location1)" style="margin: -4px; padding: 4px;">
-            <input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%">
-          </div>
-        </td>
-        <td>
-          <div ng-class="getTextCellStatus(row.location2, row.mercury.location2)" style="margin: -4px; padding: 4px;">
-            <input type="text" ng-model="row.location2" typeahead="location2 for location2 in typeahead.location2 | filter:$viewValue | limitTo:8" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekend" ng-hide="state.hideWeekend" tooltip="Mercury {{row.mercury.saturday.hours | number:1}} {{row.mercury.saturday.status}}" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.saturday, row.mercury.saturday)" style="margin: -4px; padding: 4px;">
-          <input type="number" step="0.1" ng-model="row.saturday" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekend" ng-hide="state.hideWeekend" tooltip="Mercury: {{row.mercury.sunday.hours | number:1}} ({{row.mercury.sunday.status}})" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.sunday, row.mercury.sunday)" style="margin: -4px; padding: 4px;">
-             <input type="number" step="0.1" ng-model="row.sunday" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekday" tooltip="Mercury: {{row.mercury.monday.hours | number:1}} ({{row.mercury.monday.status}})" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.monday, row.mercury.monday)" style="margin: -4px; padding: 4px;">
-            <input type="number" step="0.1" ng-model="row.monday" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekday" tooltip="Mercury: {{row.mercury.tuesday.hours | number:1}} ({{row.mercury.tuesday.status}})" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.tuesday, row.mercury.tuesday)" style="margin: -4px; padding: 4px;">
-          <input type="number" step="0.1" ng-model="row.tuesday" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekday" tooltip="Mercury: {{row.mercury.wednesday.hours | number:1}} ({{row.mercury.wednesday.status}})" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.wednesday, row.mercury.wednesday)" style="margin: -4px; padding: 4px;">
-          <input type="number" step="0.1" ng-model="row.wednesday" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekday" tooltip="Mercury: {{row.mercury.thursday.hours | number:1}} ({{row.mercury.thursday.status}})" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.thursday, row.mercury.thursday)" style="margin: -4px; padding: 4px;">
-          <input type="number" step="0.1" ng-model="row.thursday" style="width: 100%">
-          </div>
-        </td>
-        <td class="weekday" tooltip="Mercury: {{row.mercury.friday.hours | number:1}} ({{row.mercury.friday.status}})" tooltip-append-to-body="1">
-          <div ng-class="getCellStatus(row.friday, row.mercury.friday)" style="margin: -4px; padding: 4px;">
-          <input type="number" step="0.1" ng-model="row.friday" style="width: 100%">
-          </div>
-        </td>
+        <td><input type="text" ng-model="row.location1" typeahead="location1 for location1 in typeahead.location1 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
+        <td><input type="text" ng-model="row.location2" typeahead="location2 for location2 in typeahead.location2 | filter:$viewValue | limitTo:8" style="width: 100%"></td>
+        <td class="weekend" ng-hide="state.hideWeekend"><input type="number" step="0.1" ng-model="row.saturday" style="width: 100%"></td>
+        <td class="weekend" ng-hide="state.hideWeekend"><input type="number" step="0.1" ng-model="row.sunday" style="width: 100%"></td>
+        <td class="weekday"><input type="number" step="0.1" ng-model="row.monday" style="width: 100%"></td>
+        <td class="weekday"><input type="number" step="0.1" ng-model="row.tuesday" style="width: 100%"></td>
+        <td class="weekday"><input type="number" step="0.1" ng-model="row.wednesday" style="width: 100%"></td>
+        <td class="weekday"><input type="number" step="0.1" ng-model="row.thursday" style="width: 100%"></td>
+        <td class="weekday"><input type="number" step="0.1" ng-model="row.friday" style="width: 100%"></td>
         <td style="text-align:center">
           {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday | number:1}}
-          <!--
             <span ng-click="roundRow(row)" tooltip="distribute times between days to get only one decimal place" style="cursor: pointer">
               <i class="glyphicon glyphicon-transfer"></i>
             </span>
         </td>
         <td style="text-align:center">
           {{row.saturday + row.sunday + row.monday + row.tuesday + row.wednesday + row.thursday + row.friday - row.totalTime | number:2}}
-          -->
             <span ng-hide="$index === 0" ng-click="swapRows(rowsForGTE, $index - 1, $index)" tooltip-placement="left" tooltip="move row up" style="cursor: pointer">
               <i class="glyphicon glyphicon-arrow-up"></i>
             </span>
@@ -164,14 +132,11 @@
       </tbody>
       <tfoot>
       <tr class="info">
-        <!--
-        <th style="text-align:center;width:1px">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
-        -->
-        <th colspan="4" id="drop-zone" class="drop-zone" on-file="importJson">
+        <th colspan="2" style="text-align:center">{{getTotalFor(rowsForGTE, 'totalTime') | number:2}}</th>
+        <th colspan="3" id="drop-zone" class="drop-zone" on-file="importJson">
           <span ng-show="value" ng-repeat="(key, value) in aggregateByType(rowsForGTE)" class="label label-default" style="margin-right:10px;padding-top:6px;padding-bottom:6px;">
             {{key}} <span class="badge" style="background-color:#3071a9">{{value | number:1}}</span>
           </span>
-        <!--
           <div class="pull-right">
             <span ng-hide="state.saveInProgress">
               Select sheet
@@ -187,7 +152,6 @@
               <button class="btn btn-xs btn-default" ng-click="state.saveInProgress = false">Cancel</button>
             </span>
           </div>
-        -->
         </th>
         <th colspan="2" style="text-align: center">
           <button class="btn btn-primary btn-xs" ng-click="editTypeaheadEntries = !editTypeaheadEntries">
@@ -202,32 +166,33 @@
         <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'thursday') | number:1}}</th>
         <th style="text-align:center" class="weekday">{{getTotalFor(rowsForGTE, 'friday') | number:1}}</th>
         <th style="text-align:center" class="weekday">{{getTotal(rowsForGTE) | number:1}}</th>
-        <!--
         <th style="text-align:center" class="weekday">{{getTotalDiff(rowsForGTE) | number:2}}</th>
-        -->
       </tr>
       </tfoot>
     </table>
     <div style="text-align: center">
       <button ng-click="deleteAllRows(rowsForGTE)" style="width: 18%; margin-right: 3%" class="btn btn-danger">Delete all rows</button>
       <button ng-click="addRow()" style="width: 18%; margin-right: 3%" class="btn btn-primary">Add row</button>
-      <button ng-click="submitRows(rowsForGTE)" style="width: 18%; margin-right: 3%" class="btn btn-success">Submit sheet</button>
+      <span style="width: 18%; margin-right: 3%">
+        <span ng-click="refMomentForExport.add(-1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-left"></i></span>
+        <button ngclipboard ngclipboard-text="jsonForMercuryAsText(rowsForGTE, refMomentForExport)"
+                ngclipboard-success="exportForMercurySuccess(e)" ngclipboard-error="exportForMercuryError(e)"
+                id="mercury" class="btn btn-primary">
+          Export for Mercury for week {{refMomentForExport.startOf('week').add(1, 'day').format('YYYY-MM-DD')}}
+        </button>
+        <span ng-click="refMomentForExport.add(1, 'week')" style="cursor: pointer"><i class="glyphicon glyphicon-chevron-right"></i></span>
+      </span>
       <button ng-click="clearTimes(rowsForGTE)" style="width: 18%" class="btn btn-warning">Clear times</button>
     </div>
   </div>
-  <div class="row" style="border-top: 5px groove;margin-top:10px" ng-hide="onTopOfMercury">
-    <div class="col-md-12" style="margin-top: 7px;">
-      To use OTS please use the <a href="https://hc-tasks.ey.net">productive system</a> or the <a href="https://hc-tasks-dev.ey.net">development system</a>. Thank you.
-    </div>
-  </div>
-  <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries || !onTopOfMercury">
+  <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries">
     <div class="col-md-12" style="margin-top: 7px;">
       For instructions, discussions regarding to tool and further information please visit
       <a href="https://share.ey.net/sites/TimesheetPlus" target="_blank">our community site in SharePoint</a>.
     </div>
   </div>
-  <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries || !onTopOfMercury">
-    <div class="col-md-3" ng-repeat="(key, entries) in typeahead" ng-show="onTopOfMercury">
+  <div class="row" style="border-top: 5px groove;margin-top:10px" ng-show="editTypeaheadEntries">
+    <div class="col-md-3" ng-repeat="(key, entries) in typeahead">
       <h3 style="text-decoration: underline;text-align: center">{{key[0].toUpperCase() + key.substring(1)}}</h3>
       <table class="table table-bordered table-striped">
         <thead>
@@ -255,11 +220,15 @@
       <div style="margin-top:15px">
         Please right click on the following buttons within Internet Explorer and select "Add to favorites ..." to install the bookmarklet.
         Otherwise you can also just drag it to your favorites bars:<br>
+        <a class="btn btn-warning btn-large"
+           ng-href="javascript:var r = new XMLHttpRequest(); r.open('GET', '{{originOfMyself}}/scripts/importToMercury.js', false); r.send(); eval(r.responseText);">
+          Import to Mercury
+        </a>
         <a class="btn btn-warning btn-large" ng-hide="noHTTPS"
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL+'/export.html'; document.body.appendChild(frm);window.addEventListener('message', f);">
           Print timesheet from Mercury
         </a>
-        <a class="btn btn-warning btn-large" ng-hide="noHTTPS"
+        <a class="btn btn-warning btn-large" ng-hide="detectIE || noHTTPS"
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL; document.body.appendChild(frm); window.addEventListener('message', f);">
           Activate Timesheet Plus
         </a>
@@ -267,10 +236,19 @@
            ng-href="javascript:var bURL = '{{originOfMyself}}', frm = document.createElement('iframe'), f = function (e) {if (e.origin === bURL) {eval(e.data.f)(e);}}; frm.src = bURL+'/searchWBS.html'; document.body.appendChild(frm);window.addEventListener('message', f);">
           WBS Search within Mercury
         </a>
+        <br>
+        Please note that easier import is only available (aka Activate Timesheet Plus bookmarklet) if you start this application in another browser, e.g.
+        Chrome, which you can download from the <a href="https://appstore.ey.net/">EY AppStore</a>.
         <div ng-show="noHTTPS">
           <strong>You are using the tool from an deprecated HTTP only place. Please consider changing to the "official" internal version at
             <a ng-href="{{originOfMyself}}">{{originOfMyself}}</a>. Depending on your browser it will support a nice interface and timesheet printing.</strong>
         </div>
+      </div>
+    </div>
+    <div class="col-md-12" style="border-top: 5px groove;margin-top:10px">
+      <div style="margin-top:15px">
+        If copy button does not work, please copy text from the following field to clipboard prior to importing to Mercury:
+        <input type="text" value="{{jsonForMercury(rowsForGTE, refMomentForExport)}}">
       </div>
     </div>
   </div>
@@ -300,20 +278,20 @@
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
 <script src="bower_components/moment/moment.js"></script>
+<script src="bower_components/clipboard/dist/clipboard.js"></script>
+<script src="bower_components/ngclipboard/dist/ngclipboard.js"></script>
 <!-- endbower -->
-<script src="bower_components/underscore/underscore.js"></script>
-<script src="bower_components/moment/min/moment.min.js"></script>
-<script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
-<script src="bower_components/angular-zeroclipboard.js"></script>
+<script type="application/javascript" src="bower_components/underscore/underscore.js"></script>
+<script type="application/javascript" src="bower_components/moment/min/moment.min.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
-<script src="scripts/ui-bootstrap-tpls-0.9.0.js"></script>
-<script src="scripts/app.js"></script>
-<script src="scripts/directiveStopWatch.js"></script>
-<script src="scripts/controllerMain.js"></script>
-<script src="scripts/controllerExport.js"></script>
-<script src="scripts/controllerSearchWBS.js"></script>
+<script type="application/javascript" src="scripts/ui-bootstrap-tpls-0.9.0.js"></script>
+<script type="application/javascript" src="scripts/app.js"></script>
+<script type="application/javascript" src="scripts/directiveStopWatch.js"></script>
+<script type="application/javascript" src="scripts/controllerMain.js"></script>
+<script type="application/javascript" src="scripts/controllerExport.js"></script>
+<script type="application/javascript" src="scripts/controllerSearchWBS.js"></script>
 <!-- endbuild -->
 
 </body>
