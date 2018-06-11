@@ -88,7 +88,6 @@
           }
         };
         $scope.addRow = function () {
-          debugger;
           var newRow = {
             mercury    : {},
             _startTime : null,
