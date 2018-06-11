@@ -180,7 +180,7 @@
           };
 
           $scope.sortDescription = function (rows) {  
-            $scope.rowsForGTE = rows.sort(orderByProperty('description', 'engagement', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+              $scope.rowsForGTE = rows.sort(orderByProperty('description', 'engagement', 'activity', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
             $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
             $window.localStorage.timesheetChangeUUID = localChangeUUID;  
           };
