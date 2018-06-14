@@ -1,9 +1,8 @@
 (function () {
   'use strict';
   /* global _, angular, console, moment, alert, confirm */
-
-  angular.module('gteApp')
-      .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
+    angular.module('gteApp')
+        .controller('TimesheetCtrl', function ($window, $http, $timeout, $location, $scope) {
         var weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
             weekdaysForGTE = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
             chargeTypes = {
@@ -147,6 +146,48 @@
             });
           }
         };
+        function orderByProperty(prop) {  
+            var args = Array.prototype.slice.call(arguments, 1);  
+            return function (a, b) {  
+            var equality;  
+            if (typeof a[prop] === 'string' && typeof b[prop] === 'string') {  
+              if (a[prop] < b[prop]) {  
+                  equality = -1;  
+                } else if (a[prop] > b[prop]) {  
+                  equality = 1;  
+                } else {  
+                  equality = 0;  
+                }  
+              } else {  
+                equality = b[prop] - a[prop];  
+              }  
+             if (equality === 0 && arguments.length > 1) {  
+                return orderByProperty.apply(null, args)(a, b);  
+              }  
+            return equality;  
+            };  
+          }          
+          $scope.sortEngagement = function (rows) {  
+            $scope.rowsForGTE = rows.sort(orderByProperty('engagement', 'activity', 'description', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+            $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+            $window.localStorage.timesheetChangeUUID = localChangeUUID;
+          };
+
+          $scope.sortActivity = function (rows) {  
+            $scope.rowsForGTE = rows.sort(orderByProperty('activity', 'engagement', 'description', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+            $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+            $window.localStorage.timesheetChangeUUID = localChangeUUID;
+          };
+
+          $scope.sortDescription = function (rows) {  
+              $scope.rowsForGTE = rows.sort(orderByProperty('description', 'engagement', 'activity', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'));  
+            $window.localStorage.rowsForGTE = JSON.stringify($scope.rowsForGTE);
+            $window.localStorage.timesheetChangeUUID = localChangeUUID;  
+          };
+          
+          
+         
+
         $scope.removeTypeaheadEntry = function (key, index, entry) {
           $scope.typeahead[key].splice(index, 1);
           delete $scope.typeaheadLastUsed[key][entry];
